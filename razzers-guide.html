@@ -185,7 +185,7 @@
 <body>
   <main class="container" style="max-width: 1000px; width: 100%; margin: 0 auto; padding: 0 2rem;">
     
-    <a href="./" class="back-btn">
+    <a href="./index" class="back-btn">
       <i data-lucide="chevron-left"></i>
       Back to Calculator
     </a>
@@ -199,9 +199,6 @@
           1. List of Resources
         </h2>
         <div id="content-1" style="display: block;">
-          <div class="note">
-            All of these guides were created by @razzer344 on Discord / @razzdokkan on Twitter. I recommend contacting him if you have any questions related to these guides or calcing in general!
-          </div>
           <div class="guide-content">
 <h3>Wiki/Databases:</h3>
 • <a href="https://dokkandb.com/" target="_blank">DokkanDB</a> - Probably the new best database; has precise info on all numbers and enemy actions that the others may lack.
@@ -216,7 +213,8 @@
 • <a href="https://www.reddit.com/r/DBZDokkanBattle/comments/q3mz26/an_overly_long_guide_to_calculating_dokkan/" target="_blank">An overly long guide to calculating dokkan</a>
 
 <b>Note:</b>
-• ⌊ ⌋ brackets denote the "floor" of a number (removing the decimal place)</div>
+• ⌊ ⌋ brackets denote the "floor" of a number (removing the decimal place)
+• All of these guides were created by @razzer344 on Discord / @razzdokkan on Twitter. I recommend contacting him if you have any questions related to these guides or calcing in general!</div>
 
         </div>
       </div>
@@ -224,69 +222,9 @@
       <div class="guide-section">
         <h2 id="sec-2" onclick="toggleSection('content-2')">
           <i id="icon-2" data-lucide="chevron-right" class="chevron-icon open"></i>
-          2. Damage Calculation
+          2. ATK Calculation
         </h2>
         <div id="content-2" style="display: block;">
-          <div class="guide-content">This guide will assume you understand ATK and DEF calculation and how to determine enemy stats.
-
-<b>Formula:</b>
-<div class="calc-block">(Enemy ATK * (1 - DR) * (1 - DR against Normals) * Type Multiplier * Variance - DEF) * Guard Multiplier</div>
-Variance is just an RNG factor from 1.0 to 1.03, so that you don't take the exact same damage every time.
-For general calcs, we use 1.015 as a variance multiplier since this is the middle of the variance range, and so represents the average damage a unit would take.
-
-We can ignore DR against normals for almost every unit in the game; this is only on a few units such as PHY SEZA Vegito Blue.
-
-Type DEF Boost (TDB) in hidden potential reduces the type multiplier by 0.01 per level at natural type advantage, e.g. a Super AGL unit with 15 TDB taking damage from a Super STR enemy will have an 0.75 type multiplier instead of 0.9.
-Or if the unit has "Guards all attacks" with natural type advantage, then it'd be 0.65 instead of 0.8.
-
-<h3>Example: AGL LR Jiren</h3>
-AGL LR Jiren's standby vs. supers from the "Defenders of Justice" Extreme Super Battle Road.
-Assume rainbow Jiren on a 200% lead with no links up for simplicity, and with level 15 TDB. Jiren has 50% damage reduction +11% per Ki Sphere obtained.
-
-Jiren's DEF when receiving an attack is:
-<div class="calc-block">⌊⌊⌊14525 * 5⌋ * 4.5⌋ * 2⌋ = <b>653,624</b></div>
-
-<b>50% Damage Reduction:</b>
-<div class="calc-block">• Vs TEQ Demon King Piccolo: (3045000 * (1 - 0.5) * 1.25 * 1.015 - 653624) = 1,278,047.875
-• Vs STR Tambourine: (2950000 * (1 - 0.5) * 0.85 * 0.85 * 1.015 - 653624) * 0.5 = 309,466.125
-• Vs PHY Cymbal: (2900000 * (1 - 0.5) * 1.15 * 1.015 - 653624) = 1,038,988.5</div>
-
-<b>83% Damage Reduction:</b>
-<div class="calc-block">• Vs TEQ Demon King Piccolo: (3045000 * (1 - 0.83) * 1.25 * 1.015 - 3144.4375
-• Vs STR Tambourine: (2950000 * (1 - 0.83) * 0.85 * 1.015 - 653624) * 0.5 = -110,477.4375
-• Vs PHY Cymbal: (2900000 * (1 - 0.83) * 1.15 * 1.015 - 653624) = -78169.75</div>
-
-If the damage calculation yields a negative, then the game will just assign a random small number, which we always just refer to as "Double Digits" even if it's 9 or 100+.
-
-This tool provides a great interface for damage calculation: <a href="https://dokkan-damage-calculator.netlify.app/" target="_blank">https://dokkan-damage-calculator.netlify.app/</a>
-However, keep in mind Type ATK Boost doesn't work properly on this tool and will give you incorrect results.
-It is also outdated, which is why the next part is important to learn the mechanics behind:
-
-<h3>Enemy Crits</h3>
-Some enemies in modern Dokkan can crit you. This multiplies their ATK by 1.5 temporarily and reduces your unit's DEF by a fixed percentage during damage calculation, and it sets both the type multiplier and the guard multiplier to 1.
-
-However, "Guards all attacks" effects can overwrite this to set your type multiplier to 0.8 and guard multiplier to 0.5.
-Use DokkanDB to find the DEF cut on enemies' crits; for example, our AGL Jiren with 50% damage reduction against STR Gohan from the "Next-Generation Saiyans Edition Stage 5" Supreme Magnificent Battle:
-
-<div class="calc-block">(900000 * (1 - 0.5) * 1.5 * 0.85 * 1.015 - (0.3 * 653524)) = <b>386,299.05</b></div>
-
-If we pretend Jiren had "Guards all attacks":
-<div class="calc-block">(900000 * (1 - 0.5) * 1.5 * 0.65 * 1.015 - (0.3 * 653524)) * 0.5 = <b>124,637.025</b></div>
-
-If we pretend Jiren was naturally type neutral with "Guards all attacks":
-<div class="calc-block">(900000 * (1 - 0.5) * 1.5 * 0.8 * 1.015 - (0.3 * 653524)) * 0.5 = <b>176,021.4</b></div>
-
-<b>Note:</b>
-• Damage calculation for your own units doing crits and having Type ATK Boost will be explained on this guide later; your own crits function completely different from enemy crits.</div>
-        </div>
-      </div>
-
-      <div class="guide-section">
-        <h2 id="sec-3" onclick="toggleSection('content-3')">
-          <i id="icon-3" data-lucide="chevron-right" class="chevron-icon open"></i>
-          3. ATK Calculation
-        </h2>
-        <div id="content-3" style="display: block;">
           <div class="guide-content">This guide assumes you already learned DEF calculation, and will not explain what is already explained in there.
 
 ATK stats are calculated by multiplying each bracket in the following order:
@@ -339,11 +277,11 @@ The following 24-Ki would be:
       </div>
 
       <div class="guide-section">
-        <h2 id="sec-4" onclick="toggleSection('content-4')">
-          <i id="icon-4" data-lucide="chevron-right" class="chevron-icon open"></i>
-          4. DEF Calculations
+        <h2 id="sec-3" onclick="toggleSection('content-3')">
+          <i id="icon-3" data-lucide="chevron-right" class="chevron-icon open"></i>
+          3. DEF Calculations
         </h2>
-        <div id="content-4" style="display: block;">
+        <div id="content-3" style="display: block;">
           <div class="guide-content">DEF stats are calculated by multiplying each bracket in the following order:
 
 <div class="calc-block">(Base DEF) * (Leader Skill) * (Phase 1 Passives) * (Domain) * (Items) * (Links) * (Active Skills) * (Phase 2 Passive) * (Super Attack Effects)</div>
@@ -395,11 +333,11 @@ We're only 65 DEF points off here, which is a 0.00117606189% relative error — 
       </div>
 
       <div class="guide-section">
-        <h2 id="sec-5" onclick="toggleSection('content-5')">
-          <i id="icon-5" data-lucide="chevron-right" class="chevron-icon open"></i>
-          5. Determining Enemy Stats
+        <h2 id="sec-4" onclick="toggleSection('content-4')">
+          <i id="icon-4" data-lucide="chevron-right" class="chevron-icon open"></i>
+          4. Determining Enemy Stats
         </h2>
-        <div id="content-5" style="display: block;">
+        <div id="content-4" style="display: block;">
           <div class="guide-content">It is recommended to understand DEF calculation and damage calculation before learning from this post.
 
 Recommended site for maximum info on enemy stats: <a href="https://dokkandb.com" target="_blank">DokkanDB</a>
@@ -456,6 +394,67 @@ Normals: 1875000 * 1.3 = <b>2,437,500</b></div>
 Some enemies do AOE normals; these usually do full normal damage to the unit getting directly hit, and the allies indirectly hit usually receive half of whatever the enemy's current ATK is (again, separate to other multipliers); however, some enemies do have full damage indirect AOEs (e.g. Daima Red Zone Tamagami 1). DokkanDB is best for checking this.
 
 Enemy crits also have their own percentage of True DEF Ignore, which can be checked via DokkanDB. To calc enemy crit dmg, see the Damage Calculation guide.</div>
+        </div>
+      </div>
+
+      <div class="guide-section">
+        <h2 id="sec-5" onclick="toggleSection('content-5')">
+          <i id="icon-5" data-lucide="chevron-right" class="chevron-icon open"></i>
+          5. Damage Calculation
+        </h2>
+        <div id="content-5" style="display: block;">
+          <div class="guide-content">This guide will assume you understand ATK and DEF calculation and how to determine enemy stats.
+
+<b>Formula:</b>
+<div class="calc-block">(Enemy ATK * (1 - DR) * (1 - DR against Normals) * Type Multiplier * Variance - DEF) * Guard Multiplier</div>
+Variance is just an RNG factor from 1.0 to 1.03, so that you don't take the exact same damage every time.
+For general calcs, we use 1.015 as a variance multiplier since this is the middle of the variance range, and so represents the average damage a unit would take.
+
+We can ignore DR against normals for almost every unit in the game; this is only on a few units such as PHY SEZA Vegito Blue.
+
+Type DEF Boost (TDB) in hidden potential reduces the type multiplier by 0.01 per level at natural type advantage, e.g. a Super AGL unit with 15 TDB taking damage from a Super STR enemy will have an 0.75 type multiplier instead of 0.9.
+Or if the unit has "Guards all attacks" with natural type advantage, then it'd be 0.65 instead of 0.8.
+
+<h3>Example: AGL LR Jiren</h3>
+AGL LR Jiren's standby vs. supers from the "Defenders of Justice" Extreme Super Battle Road.
+Assume rainbow Jiren on a 200% lead with no links up for simplicity, and with level 15 TDB. Jiren has 50% damage reduction +11% per Ki Sphere obtained.
+
+Jiren's DEF when receiving an attack is:
+<div class="calc-block">⌊⌊⌊14525 * 5⌋ * 4.5⌋ * 2⌋ = <b>653,624</b></div>
+
+<b>50% Damage Reduction:</b>
+<div class="calc-block">• Vs TEQ Demon King Piccolo: (3045000 * (1 - 0.5) * 1.25 * 1.015 - 653624) = 1,278,047.875
+• Vs STR Tambourine: (2950000 * (1 - 0.5) * 0.85 * 0.85 * 1.015 - 653624) * 0.5 = 309,466.125
+• Vs PHY Cymbal: (2900000 * (1 - 0.5) * 1.15 * 1.015 - 653624) = 1,038,988.5</div>
+
+<b>83% Damage Reduction:</b>
+<div class="calc-block">• Vs TEQ Demon King Piccolo: (3045000 * (1 - 0.83) * 1.25 * 1.015 - 3144.4375
+• Vs STR Tambourine: (2950000 * (1 - 0.83) * 0.85 * 1.015 - 653624) * 0.5 = -110,477.4375
+• Vs PHY Cymbal: (2900000 * (1 - 0.83) * 1.15 * 1.015 - 653624) = -78169.75</div>
+
+If the damage calculation yields a negative, then the game will just assign a random small number, which we always just refer to as "Double Digits" even if it's 9 or 100+.
+
+This tool provides a great interface for damage calculation: <a href="https://dokkan-damage-calculator.netlify.app/" target="_blank">https://dokkan-damage-calculator.netlify.app/</a>
+However, keep in mind Type ATK Boost doesn't work properly on this tool and will give you incorrect results.
+It is also outdated, which is why the next part is important to learn the mechanics behind:
+
+<h3>Enemy Crits</h3>
+Some enemies in modern Dokkan can crit you. This multiplies their ATK by 1.5 temporarily and reduces your unit's DEF by a fixed percentage during damage calculation, and it sets both the type multiplier and the guard multiplier to 1.
+
+However, "Guards all attacks" effects can overwrite this to set your type multiplier to 0.8 and guard multiplier to 0.5.
+Use DokkanDB to find the DEF cut on enemies' crits; for example, our AGL Jiren with 50% damage reduction against STR Gohan from the "Next-Generation Saiyans Edition Stage 5" Supreme Magnificent Battle:
+
+<div class="calc-block">(900000 * (1 - 0.5) * 1.5 * 0.85 * 1.015 - (0.3 * 653524)) = <b>386,299.05</b></div>
+
+If we pretend Jiren had "Guards all attacks":
+<div class="calc-block">(900000 * (1 - 0.5) * 1.5 * 0.65 * 1.015 - (0.3 * 653524)) * 0.5 = <b>124,637.025</b></div>
+
+If we pretend Jiren was naturally type neutral with "Guards all attacks":
+<div class="calc-block">(900000 * (1 - 0.5) * 1.5 * 0.8 * 1.015 - (0.3 * 653524)) * 0.5 = <b>176,021.4</b></div>
+
+<b>Note:</b>
+• Damage calculation for your own units doing crits function completely different from enemy crits.</div>
+        </div>
       </div>
 
     </div>
@@ -469,10 +468,10 @@ Enemy crits also have their own percentage of True DEF Ignore, which can be chec
 
     <div id="toc-panel" class="toc-panel">
       <a href="#sec-1" class="toc-link" onclick="openSection('content-1'); toggleToc()">1. List of Resources</a>
-      <a href="#sec-2" class="toc-link" onclick="openSection('content-2'); toggleToc()">2. Damage Calculation</a>
-      <a href="#sec-3" class="toc-link" onclick="openSection('content-3'); toggleToc()">3. ATK Calculation</a>
-      <a href="#sec-4" class="toc-link" onclick="openSection('content-4'); toggleToc()">4. DEF Calculations</a>
-      <a href="#sec-5" class="toc-link" onclick="openSection('content-5'); toggleToc()">5. Determining Enemy Stats</a>
+      <a href="#sec-2" class="toc-link" onclick="openSection('content-2'); toggleToc()">2. ATK Calculation</a>
+      <a href="#sec-3" class="toc-link" onclick="openSection('content-3'); toggleToc()">3. DEF Calculations</a>
+      <a href="#sec-4" class="toc-link" onclick="openSection('content-4'); toggleToc()">4. Determining Enemy Stats</a>
+      <a href="#sec-5" class="toc-link" onclick="openSection('content-5'); toggleToc()">5. Damage Calculation</a>
     </div>
   </div>
 

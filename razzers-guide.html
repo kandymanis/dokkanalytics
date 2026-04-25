@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Razzer's Calcing Guide</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Orbitron:wght@500;700;900&display=block" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    body {
+      align-items: flex-start !important;
+      padding-top: 2rem !important;
+      padding-bottom: 2rem !important;
+    }
+    .guide-container {
+      background: var(--panel-bg);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--panel-border);
+      border-radius: 20px;
+      padding: 2rem;
+    }
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--text-secondary);
+      text-decoration: none;
+      margin-bottom: 2rem;
+      transition: color 0.2s;
+    }
+    .back-btn:hover {
+      color: var(--text-primary);
+    }
+    .guide-section {
+      margin-bottom: 3rem;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .guide-section:last-child {
+      border-bottom: none;
+    }
+    .guide-section h2 {
+      color: var(--accent-atk);
+      margin-bottom: 1rem;
+      font-size: 1.8rem;
+      cursor: pointer;
+      user-select: none;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 0.5rem;
+    }
+    .guide-section h2:hover {
+      opacity: 0.8;
+    }
+    .chevron-icon {
+      color: var(--accent-atk);
+    }
+    .chevron-icon.open {
+      transform: rotate(90deg);
+    }
+    .guide-section h3 {
+      color: var(--accent-atk);
+      margin-top: 1.5rem;
+      margin-bottom: 0.5rem;
+      font-size: 1.3rem;
+    }
+    .guide-content {
+      line-height: 1.6;
+      color: var(--text-primary);
+      white-space: pre-wrap;
+      font-size: 1.05rem;
+    }
+    .guide-content a {
+      color: var(--accent-def);
+      text-decoration: none;
+    }
+    .guide-content a:hover {
+      text-decoration: underline;
+    }
+    .note {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 1rem;
+      border-left: 4px solid var(--accent-atk);
+      margin: 1rem 0;
+      border-radius: 4px;
+      white-space: normal;
+    }
+    .calc-block {
+      background: rgba(0, 0, 0, 0.3);
+      padding: 1rem;
+      border-radius: 8px;
+      font-family: monospace;
+      margin: 1rem 0;
+      white-space: pre-wrap;
+      color: var(--text-primary);
+      border: 1px solid var(--panel-border);
+    }
+    
+    .toc-wrapper {
+      position: fixed;
+      top: 4rem;
+      right: 2rem;
+      z-index: 100;
+    }
+    .toc-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--panel-border);
+      color: var(--text-secondary);
+      padding: 0.6rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .toc-btn:hover {
+      color: var(--text-primary);
+      background: rgba(255, 255, 255, 0.1);
+    }
+    .toc-panel {
+      display: none;
+      position: absolute;
+      top: 100%;
+      right: 0;
+      margin-top: 1rem;
+      background: #18181b;
+      border: 1px solid var(--panel-border);
+      padding: 1rem;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.8);
+      min-width: 320px;
+      white-space: nowrap;
+    }
+    
+    @media (min-width: 1650px) {
+      .toc-panel {
+        top: 0;
+        left: 100%;
+        right: auto;
+        margin-top: 0;
+        margin-left: 1rem;
+      }
+    }
+    @media (max-width: 768px) {
+      .toc-wrapper {
+        top: auto;
+        bottom: 2rem;
+      }
+      .toc-panel {
+        bottom: 100%;
+        top: auto;
+        right: 0;
+        margin-bottom: 1rem;
+        margin-top: 0;
+        min-width: 350px;
+      }
+      .toc-btn .lucide {
+        width: 32px !important;
+        height: 32px !important;
+      }
+    }
+    
+    .toc-link {
+      display: block;
+      color: var(--text-secondary);
+      text-decoration: none;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      font-size: 1.1rem;
+    }
+    .toc-link:last-child {
+      border-bottom: none;
+    }
+    .toc-link:hover {
+      color: var(--accent-atk);
+    }
+  </style>
+</head>
+<body>
+  <main class="container" style="max-width: 1000px; width: 100%; margin: 0 auto; padding: 0 2rem;">
+    
+    <a href="index.html" class="back-btn">
+      <i data-lucide="chevron-left"></i>
+      Back to Calculator
+    </a>
+    
+    <div class="guide-container">
+      <h1 style="text-align: center; margin-bottom: 2rem; font-size: 2.5rem;">Razzer's Calcing Guide</h1>
+
+      <div class="guide-section">
+        <h2 id="sec-1" onclick="toggleSection('content-1')">
+          <i id="icon-1" data-lucide="chevron-right" class="chevron-icon open"></i>
+          1. List of Resources
+        </h2>
+        <div id="content-1" style="display: block;">
+          <div class="note">
+            All of these guides were created by @razzer344 on Discord / @razzdokkan on Twitter. I recommend contacting him if you have any questions related to these guides or calcing in general!
+          </div>
+          <div class="guide-content">
+<h3>Wiki/Databases:</h3>
+• <a href="https://dokkandb.com/" target="_blank">DokkanDB</a> - Probably the new best database; has precise info on all numbers and enemy actions that the others may lack.
+• <a href="https://dokkanstats.com/en/" target="_blank">DokkanStats</a> - Database that calculates stats in situations for you (would recommend the guides to learn how to actually make use of these numbers!!).
+• <a href="https://dokkaninfo.com/" target="_blank">DokkanInfo</a> - Database with a useful 200%/220% leader skill tool.
+• <a href="https://dokkan.wiki/" target="_blank">Dokkan Wiki</a> - Database with nice visuals, settings, has unit animations.
+• <a href="https://dbz-dokkanbattle.fandom.com/wiki/Dragon_Ball_Z_Dokkan_Battle_Wiki" target="_blank">Fandom Wiki</a> - The fandom wiki is not maintained as well as databases for information access, but has documentation and explanations on older things that are useful.
+
+<h3>Useful Guides that I learned from (these go into more detail on topics and/or explain things I haven't yet):</h3>
+• <a href="https://www.reddit.com/r/DBZDokkanBattle/comments/weidle/how_damage_taken_works_dokkan_battle_complete/#lightbox" target="_blank">Damage calculation guide</a> - is missing info on enemy crits but I have that sorted!
+• <a href="https://www.reddit.com/r/DBZDokkanBattle/comments/zza0ye/the_ultimate_guide_to_calculating_dokkan_full/" target="_blank">Another slightly outdated guide on calculation</a>
+• <a href="https://www.reddit.com/r/DBZDokkanBattle/comments/q3mz26/an_overly_long_guide_to_calculating_dokkan/" target="_blank">An overly long guide to calculating dokkan</a>
+
+<b>Note:</b>
+• ⌊ ⌋ brackets denote the "floor" of a number (removing the decimal place)</div>
+
+        </div>
+      </div>
+
+      <div class="guide-section">
+        <h2 id="sec-2" onclick="toggleSection('content-2')">
+          <i id="icon-2" data-lucide="chevron-right" class="chevron-icon open"></i>
+          2. Damage Calculation
+        </h2>
+        <div id="content-2" style="display: block;">
+          <div class="guide-content">This guide will assume you understand ATK and DEF calculation and how to determine enemy stats.
+
+<b>Formula:</b>
+<div class="calc-block">(Enemy ATK * (1 - DR) * (1 - DR against Normals) * Type Multiplier * Variance - DEF) * Guard Multiplier</div>
+Variance is just an RNG factor from 1.0 to 1.03, so that you don't take the exact same damage every time.
+For general calcs, we use 1.015 as a variance multiplier since this is the middle of the variance range, and so represents the average damage a unit would take.
+
+We can ignore DR against normals for almost every unit in the game; this is only on a few units such as PHY SEZA Vegito Blue.
+
+Type DEF Boost (TDB) in hidden potential reduces the type multiplier by 0.01 per level at natural type advantage, e.g. a Super AGL unit with 15 TDB taking damage from a Super STR enemy will have an 0.75 type multiplier instead of 0.9.
+Or if the unit has "Guards all attacks" with natural type advantage, then it'd be 0.65 instead of 0.8.
+
+<h3>Example: AGL LR Jiren</h3>
+AGL LR Jiren's standby vs. supers from the "Defenders of Justice" Extreme Super Battle Road.
+Assume rainbow Jiren on a 200% lead with no links up for simplicity, and with level 15 TDB. Jiren has 50% damage reduction +11% per Ki Sphere obtained.
+
+Jiren's DEF when receiving an attack is:
+<div class="calc-block">⌊⌊⌊14525 * 5⌋ * 4.5⌋ * 2⌋ = <b>653,624</b></div>
+
+<b>50% Damage Reduction:</b>
+<div class="calc-block">• Vs TEQ Demon King Piccolo: (3045000 * (1 - 0.5) * 1.25 * 1.015 - 653624) = 1,278,047.875
+• Vs STR Tambourine: (2950000 * (1 - 0.5) * 0.85 * 0.85 * 1.015 - 653624) * 0.5 = 309,466.125
+• Vs PHY Cymbal: (2900000 * (1 - 0.5) * 1.15 * 1.015 - 653624) = 1,038,988.5</div>
+
+<b>83% Damage Reduction:</b>
+<div class="calc-block">• Vs TEQ Demon King Piccolo: (3045000 * (1 - 0.83) * 1.25 * 1.015 - 3144.4375
+• Vs STR Tambourine: (2950000 * (1 - 0.83) * 0.85 * 1.015 - 653624) * 0.5 = -110,477.4375
+• Vs PHY Cymbal: (2900000 * (1 - 0.83) * 1.15 * 1.015 - 653624) = -78169.75</div>
+
+If the damage calculation yields a negative, then the game will just assign a random small number, which we always just refer to as "Double Digits" even if it's 9 or 100+.
+
+This tool provides a great interface for damage calculation: <a href="https://dokkan-damage-calculator.netlify.app/" target="_blank">https://dokkan-damage-calculator.netlify.app/</a>
+However, keep in mind Type ATK Boost doesn't work properly on this tool and will give you incorrect results.
+It is also outdated, which is why the next part is important to learn the mechanics behind:
+
+<h3>Enemy Crits</h3>
+Some enemies in modern Dokkan can crit you. This multiplies their ATK by 1.5 temporarily and reduces your unit's DEF by a fixed percentage during damage calculation, and it sets both the type multiplier and the guard multiplier to 1.
+
+However, "Guards all attacks" effects can overwrite this to set your type multiplier to 0.8 and guard multiplier to 0.5.
+Use DokkanDB to find the DEF cut on enemies' crits; for example, our AGL Jiren with 50% damage reduction against STR Gohan from the "Next-Generation Saiyans Edition Stage 5" Supreme Magnificent Battle:
+
+<div class="calc-block">(900000 * (1 - 0.5) * 1.5 * 0.85 * 1.015 - (0.3 * 653524)) = <b>386,299.05</b></div>
+
+If we pretend Jiren had "Guards all attacks":
+<div class="calc-block">(900000 * (1 - 0.5) * 1.5 * 0.65 * 1.015 - (0.3 * 653524)) * 0.5 = <b>124,637.025</b></div>
+
+If we pretend Jiren was naturally type neutral with "Guards all attacks":
+<div class="calc-block">(900000 * (1 - 0.5) * 1.5 * 0.8 * 1.015 - (0.3 * 653524)) * 0.5 = <b>176,021.4</b></div>
+
+<b>Note:</b>
+• Damage calculation for your own units doing crits and having Type ATK Boost will be explained on this guide later; your own crits function completely different from enemy crits.</div>
+        </div>
+      </div>
+
+      <div class="guide-section">
+        <h2 id="sec-3" onclick="toggleSection('content-3')">
+          <i id="icon-3" data-lucide="chevron-right" class="chevron-icon open"></i>
+          3. ATK Calculation
+        </h2>
+        <div id="content-3" style="display: block;">
+          <div class="guide-content">This guide assumes you already learned DEF calculation, and will not explain what is already explained in there.
+
+ATK stats are calculated by multiplying each bracket in the following order:
+
+<div class="calc-block">(Base ATK) * (Leader Skill) * (Phase 1 Passives) * (Domain) * (Items) * (Links) * (Active Skills) * (Ki Multiplier) * (Phase 2 Passive) * (Super Attack Multiplier + Effects)</div>
+So the only things different are Ki Multiplier and SA Multiplier.
+
+<a href="https://dokkaninfo.com/cards/" target="_blank">DokkanInfo</a> or <a href="https://dokkandb.com/cards/" target="_blank">DokkanDB</a> are recommended to find a unit's Ki Multiplier.
+Super Attack multipliers at the corresponding SA level can be found here: <a href="https://dbz-dokkanbattle.fandom.com/wiki/Super_Attack_Multipliers" target="_blank">Fandom Wiki</a>
+
+"Super Attack Boost" node in hidden potential raises Super Attack multiplier by 5% per level. This is always level 6 for +30% at 55%.
+If you pick SA Boost over Type Advantage Boost on the top right node, then you should have SA Boost level 15 for +75% at rainbow (always recommended).
+
+For example, mega-colossal damage at SA level 20 is 570%. With 0 dupe hidden potential it's raised to 600%, and at rainbow it's raised to 645%.
+
+Infinite ATK Stackers come with a penalty where they actually start with -1 stack on their stacking super, which then gets added back on the first stack.
+
+<h3>Example: STR Tag Blues</h3>
+Let's use the turn 1 STR Tag Blues on a 220% lead and say they're rainbow, linked with the TEQ Gods for +80% ATK in links; performing a 24-Ki super and an additional super.
+These guys have a 160% 12-Ki multiplier, all LRs have a 200% 24-Ki multiplier, they have +350% ATK at start of turn and +200% ATK mid-battle.
+They greatly stack ATK on their mega-colossal 18-Ki w/ stacker penalty, and they greatly raise ATK for 1 turn on 12-Ki.
+
+<div class="calc-block">⌊⌊⌊⌊⌊⌊⌊⌊⌊ATK * Lead⌋ * Phase 1⌋ * Domain⌋ * Items⌋ * Links⌋ * Actives⌋ * Ki⌋ * Phase 2⌋ * SA Multiplier⌋
+⌊⌊⌊⌊⌊⌊⌊⌊⌊19950 * 5.4⌋ * 4.5⌋ * 1⌋ * 1⌋ * 1.8⌋ * 1⌋ * 2⌋ * 3⌋ * 6.45⌋ = <b>33,769,931 ATK</b></div>
+
+Now for 12-Ki:
+<div class="calc-block">⌊⌊⌊⌊⌊⌊⌊⌊⌊19950 * 5.4⌋ * 4.5⌋ * 1⌋ * 1⌋ * 1.8⌋ * 1⌋ * 1.6⌋ * 3⌋ * 6⌋ = <b>25,131,240 ATK</b></div>
+SA level 20 Colossal is 425% (500% with rainbow hidden potential SA Boost). The 18-Ki stack and the 1-turn raise on 12-Ki are both applied here, as there's no stacker penalty.
+
+On turn 3 we're now carrying that 50% stack from turn 1, so for the same situation, our numbers are now:
+<div class="calc-block">⌊⌊⌊⌊⌊⌊⌊⌊⌊19950 * 5.4⌋ * 4.5⌋ * 1⌋ * 1⌋ * 1.8⌋ * 1⌋ * 2⌋ * 3⌋ * 6.95⌋ = <b>36,387,962 ATK</b> on 24-Ki
+⌊⌊⌊⌊⌊⌊⌊⌊⌊19950 * 5.4⌋ * 4.5⌋ * 1⌋ * 1⌋ * 1.8⌋ * 1⌋ * 1.6⌋ * 3⌋ * 6.5⌋ = <b>27,225,510 ATK</b> on 12-Ki</div>
+
+Now let's say it's turn 5 and we have access to the active skill. 
+Active skill attacks, standby finishes, and counterattacks work differently; their multipliers are a separate bracket to the SA Multiplier bracket.
+Ultimate damage on actives is usually a 550% multiplier (625% with rainbow hidden potential).
+
+The effect on SSB Goku's active is <i>"Raises ATK by 300% temporarily and causes ultimate damage to enemy; ATK & DEF +20% and can nullify attacks that are guaranteed to hit, making it possible to evade these attacks, in battle"</i>.
+Unlike super attacks, on actives the buff applies before the attack even if it's worded as coming after, so we have the ATK +20% here.
+The +300% on this active skill adds to 625% for a 925% multiplier, whereas the +100% we have from stacking is a separate SA Multiplier, the resulting calculation being:
+<div class="calc-block">⌊⌊⌊⌊⌊⌊⌊⌊⌊19950 * 5.4⌋ * 4.5⌋ * 1⌋ * 1⌋ * 1.8⌋ * 1.2⌋ * 2⌋ * 3⌋ * 2 * 9.25⌋ = <b>116,231,985 ATK</b> on active</div>
+
+The following 24-Ki would be:
+<div class="calc-block">⌊⌊⌊⌊⌊⌊⌊⌊⌊19950 * 5.4⌋ * 4.5⌋ * 1⌋ * 1⌋ * 1.8⌋ * 1.2⌋ * 2⌋ * 3⌋ * 7.45⌋ = <b>46,806,934</b></div>
+
+<b>Note:</b>
+• Treat EX Supers as 18/24-Ki supers.
+• For counters, tremendous power is a 300% multiplier and ferocious power is 400%.</div>
+        </div>
+      </div>
+
+      <div class="guide-section">
+        <h2 id="sec-4" onclick="toggleSection('content-4')">
+          <i id="icon-4" data-lucide="chevron-right" class="chevron-icon open"></i>
+          4. DEF Calculations
+        </h2>
+        <div id="content-4" style="display: block;">
+          <div class="guide-content">DEF stats are calculated by multiplying each bracket in the following order:
+
+<div class="calc-block">(Base DEF) * (Leader Skill) * (Phase 1 Passives) * (Domain) * (Items) * (Links) * (Active Skills) * (Phase 2 Passive) * (Super Attack Effects)</div>
+For an example, you are running a dual +220% lead on a unit, then the unit is gaining +440% of it's base stat, a.k.a. multiplying by 5.4.
+
+It is recommended to pull up the unit's info and follow this example for first time calcs: Take TEQ LR Wrathful Broly with a base rainbow DEF of 13,169.
+<div class="calc-block">13169 + 440% * 13169 = 13169 * 5.4 = <b>71,112.6</b></div>
+
+Converting the percentages to multipliers in this way makes for faster, more efficient writing, and cleaner notation.
+
+The reason we calculate in a specific order is because Dokkan's stat calculation removes the decimal point at each step of calculation, so our 71112.6 DEF from before becomes 71112 before we move on to phase 1 passive skills.
+If you want to, though, you can just ignore this and therefore also ignore the calculation order, since you will be more than precise enough anyway (see end).
+
+Passive skill buffs are actually split into two brackets; these are referred to by the community as either Phase 1 and Phase 2 or SoT (Start of Turn) and Mid-Battle buffs.
+To determine whether a buff is in the Phase 1 or Phase 2 bracket, consider the moment that the first attack begins (be it from an enemy in slot 0 or from your own unit);
+if the buff applies before characters start battling, then it's in Phase 1/SoT. If the buff applies during or after the very first attack in battle, then it's Phase 2/Mid-Battle.
+
+With this understood, we can now refer to TEQ LR Wrathful Broly. His only Phase 1 DEF buff is ATK & DEF +260% in basic effects:
+<div class="calc-block">71112 * 3.6 = <b>256,003.2</b></div>which we'd round down to 256003.
+
+However, for this example we're going to assume he's linked with INT LR LSSJ Broly who happens to give +40% support for the first 4 turns. With this we have:
+<div class="calc-block">71112 * (3.6 + 0.4) = 71112 * 4 = <b>284,448</b></div>
+
+We'll assume that we're in INT LR Broly's Domain (DEF +15%), that a Bulma item (DEF +20%) is up, and that Broly has the link skills Prepared for Battle and Shocking Speed active (DEF +10%).
+<div class="calc-block">284448 * 1.15 = 327115.2
+327115 * 1.2 = 392538
+392538 * 1.1 = <b>431,791.8</b></div>rounded down to 431791.
+
+Now, Wrathful Broly's passive grants him DEF +50% (up to +400%) for each attack performed (phase 2 passive), and his Super Attack effect grants him +20% DEF with infinite stacking. If we assume he attacks three times, with two of them being Super Attacks, then we get +150% in phase 2 and +40% in SA Effects.
+<div class="calc-block">431791 * 2.5 = 1079477.5
+1079477 * 1.4 = <b>1,511,267.8</b></div>rounded down to <b>1,511,267</b>, which is our final DEF stat this turn.
+
+For the next turn, we're going to use Wrathful Broly's active skill, which grants him DEF +60% and just assume that all other buffs remain up.
+We now need to re-calculate, but in this case, it's quick since we only need to start after link skills, which we already did:
+<div class="calc-block">431791 * 1.6 = 690865.6
+690865 * 2.5 = 1727162.5
+392538 * 1.4 = <b>2,418,026.8</b></div>rounded down to <b>2,418,026</b>, which is our new DEF stat at the start of this turn.
+
+Say Broly now does 3 attacks and it's a triple super this turn, gaining +150% in mid-battle/phase 2 and +60% in SA effect buffs.
+Since stats update dynamically, we need to update these multipliers from 2.5 and 1.4 to 4 and 2 respectively:
+<div class="calc-block">690865 * 4 = 2763460
+2763460 * 2 = <b>5,526,920</b></div>as our new DEF stat after Broly is done attacking.
+
+All of this decimal removal is slow and annoying if you're manually doing calcs (for instance, I just do my calcs in a google tab). So for most cases you can just forget about it. It doesn't actually make a big difference. This way, I can forget about the calculation order and I can do the whole thing in one line:
+<div class="calc-block">13169 * 5.4 * 4 * 1.15 * 1.2 * 1.1 * 1.6 * 4 * 2 = <b>5,526,985.05216</b></div>which you just round down to <b>5,526,985</b> for legibility.
+
+We're only 65 DEF points off here, which is a 0.00117606189% relative error — variance RNG already throws damage off by up to 3%, so this does not matter.</div>
+        </div>
+      </div>
+
+      <div class="guide-section">
+        <h2 id="sec-5" onclick="toggleSection('content-5')">
+          <i id="icon-5" data-lucide="chevron-right" class="chevron-icon open"></i>
+          5. Determining Enemy Stats
+        </h2>
+        <div id="content-5" style="display: block;">
+          <div class="guide-content">It is recommended to understand DEF calculation and damage calculation before learning from this post.
+
+Recommended site for maximum info on enemy stats: <a href="https://dokkandb.com" target="_blank">DokkanDB</a>
+Recommended site for info on attack patterns: <a href="https://dokkaninfo.com/" target="_blank">DokkanInfo</a>
+
+Enemy stats are quite easy to follow. Most stages don't even have any gimmicks, but modern content is starting to give enemies actual passive skills. 
+Thankfully, they work almost the same as your own units, as if they were Super Attack Level 1.
+
+Most modern bosses just do Immense, Colossal or Mega-Colossal damage, but I'll give some extras here for niche cases.
+These are always Level 1 multipliers:
+• Mega-Colossal: 350%
+• Colossal: 300%
+• Immense: 280%
+• Supreme: 250%
+• Extreme and Mass: 220%
+• Huge and Destructive: 200%
+
+ATK is the most important stat to learn to understand on an enemy, so that you can damage calc your own units taking damage.
+Take final phase FPSSJ Broly in the "Pure Saiyans Edition Stage 6" Red Zone.
+This guy has base 1.2 million ATK, which <i>would</i>  be how hard his normals hit on turn 1; however, he has two passives for ATK:
+• ATK +30% with each turn passed (up to 150%)
+• ATK +5% with each attack received (up to 100%)
+
+Passives are split into two multiplicative brackets, one for Start of Turn buffs and one for Mid-Battle buffs, and this guy has one in each. ATK +30% with each turn passed includes the first turn, so before you do anything, this enemy's base ATK is:
+<div class="calc-block">1200000 * 1.3 = <b>1,560,000</b></div>
+
+Now, if this enemy is to super you, then his Super Attack Multiplier kicks in.
+As you can see, he does Colossal damage (300% multiplier) and his "Greatly raises ATK for 1 turn" adds 50% to it for a 350% or 3.5 multiplier.
+<div class="calc-block">1200000 * 1.3 * 3.5 = <b>5,460,000</b> on the super.</div>
+
+Like on your own units, treat normals like super attacks that have a 100% SA multiplier.
+This means after Broly's 50% raise, our multiplier on normals is 100% + 50% = 1.5.
+<div class="calc-block">1200000 * 1.3 * 1.5 = <b>2,340,000</b> on the post-super normals.</div>
+
+FPSSJ Broly can super twice per turn. Interestingly, enemy ATK seems to cap at 1 stack, so his 2nd super cannot raise him above 350% (or 150% on the normals).
+
+If we pretend FPSSJ Broly could be ATK debuffed, it would just reduce the same calculation; for example, "lowers ATK" on SA effect would reduce the SA multiplier by 20%, so pre-super normals would be at 80% power, the super would be at 330% and post-super normals would be at 130%. The enemy doing another super would then bring these multipliers back up to their cap at 350% and 150%.
+
+Now then, FPSSJ Broly gets to +150% in phase 1 buffs from 5th turn from entry, and another passive lets him build up to +100% in phase 2 buffs from getting hit, so his ATK climbs up to:
+<div class="calc-block">1200000 * 2.5 * 2 = <b>6,000,000</b></div>
+His super and the subsequent normals are:
+<div class="calc-block">Super: 6000000 * 3.5 = <b>21,000,000</b>
+Normals: 6000000 * 1.5 = <b>9,000,000</b></div>
+
+DEF is self-explanatory; it works the exact same as ATK with less complexity. SA effect DEF buffs and debuffs work the same as they do on your own units with the exception of the "cap" like with ATK. So this Broly's DEF builds up to:
+<div class="calc-block">1500000 * 2.5 * 2 = <b>7,500,000</b></div>
+
+Now let's look at the 2nd-to-last phase of this Pure Saiyan Red Zone stage.
+Territory is in its own calculation bracket with its own multiplier, and if your own domain buffs the enemy, same thing, so you can just multiply that separately in all cases.
+So SSJ Broly has base ATK of 1250000 that is raised by 50% to 1875000, and supers with Colossal +30% for:
+<div class="calc-block">Super: 1875000 * 3.3 = <b>6,187,500</b>
+Normals: 1875000 * 1.3 = <b>2,437,500</b></div>
+
+Some enemies do AOE normals; these usually do full normal damage to the unit getting directly hit, and the allies indirectly hit usually receive half of whatever the enemy's current ATK is (again, separate to other multipliers); however, some enemies do have full damage indirect AOEs (e.g. Daima Red Zone Tamagami 1). DokkanDB is best for checking this.
+
+Enemy crits also have their own percentage of True DEF Ignore, which can be checked via DokkanDB. To calc enemy crit dmg, see the Damage Calculation guide.</div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <div class="toc-wrapper">
+    <button class="toc-btn" onclick="toggleToc()" title="Table of Contents">
+      <i data-lucide="list"></i>
+    </button>
+
+    <div id="toc-panel" class="toc-panel">
+      <a href="#sec-1" class="toc-link" onclick="openSection('content-1'); toggleToc()">1. List of Resources</a>
+      <a href="#sec-2" class="toc-link" onclick="openSection('content-2'); toggleToc()">2. Damage Calculation</a>
+      <a href="#sec-3" class="toc-link" onclick="openSection('content-3'); toggleToc()">3. ATK Calculation</a>
+      <a href="#sec-4" class="toc-link" onclick="openSection('content-4'); toggleToc()">4. DEF Calculations</a>
+      <a href="#sec-5" class="toc-link" onclick="openSection('content-5'); toggleToc()">5. Determining Enemy Stats</a>
+    </div>
+  </div>
+
+  <script>
+    function toggleSection(contentId) {
+      const content = document.getElementById(contentId);
+      const iconId = contentId.replace('content-', 'icon-');
+      const icon = document.getElementById(iconId);
+      
+      if (content.style.display === 'none') {
+        content.style.display = 'block';
+        icon.classList.add('open');
+      } else {
+        content.style.display = 'none';
+        icon.classList.remove('open');
+      }
+    }
+
+    function toggleToc() {
+      const toc = document.getElementById('toc-panel');
+      if (toc.style.display === 'none' || toc.style.display === '') {
+        toc.style.display = 'block';
+      } else {
+        toc.style.display = 'none';
+      }
+    }
+
+    function openSection(contentId) {
+      const content = document.getElementById(contentId);
+      const iconId = contentId.replace('content-', 'icon-');
+      const icon = document.getElementById(iconId);
+      
+      content.style.display = 'block';
+      icon.classList.add('open');
+    }
+    
+    document.addEventListener('click', function(event) {
+      const toc = document.getElementById('toc-panel');
+      const tocBtn = document.querySelector('.toc-btn');
+      if (toc.style.display === 'block' && !toc.contains(event.target) && !tocBtn.contains(event.target)) {
+        toc.style.display = 'none';
+      }
+    });
+
+    if (typeof lucide !== 'undefined') {
+      lucide.createIcons();
+    }
+  </script>
+</body>
+</html>

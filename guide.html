@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calculator Guide</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Orbitron:wght@500;700;900&display=block" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    body {
+      align-items: flex-start !important;
+      padding-top: 2rem !important;
+      padding-bottom: 2rem !important;
+    }
+    .guide-container {
+      background: var(--panel-bg);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--panel-border);
+      border-radius: 20px;
+      padding: 2rem;
+    }
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--text-secondary);
+      text-decoration: none;
+      margin-bottom: 2rem;
+      transition: color 0.2s;
+    }
+    .back-btn:hover { color: var(--text-primary); }
+    .guide-section {
+      margin-bottom: 3rem;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .guide-section:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+    }
+    .guide-section h2 {
+      color: var(--accent-atk);
+      margin-bottom: 1rem;
+      font-size: 1.8rem;
+      text-align: center;
+    }
+    .guide-section h3 {
+      color: var(--accent-atk);
+      margin-top: 1.5rem;
+      margin-bottom: 0.5rem;
+      font-size: 1.2rem;
+      text-align: center;
+    }
+    .guide-section.def-section h2,
+    .guide-section.def-section h3 {
+      color: var(--accent-def);
+    }
+    .guide-content {
+      line-height: 1.7;
+      color: var(--text-primary);
+      font-size: 1.05rem;
+    }
+    .guide-content p { margin-bottom: 0.75rem; }
+    .field-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+      font-size: 0.95rem;
+    }
+    .field-table th {
+      text-align: left;
+      padding: 0.6rem 1rem;
+      color: var(--text-secondary);
+      font-weight: 800;
+      text-transform: uppercase;
+      font-size: 0.8rem;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .field-table td {
+      padding: 0.6rem 1rem;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      vertical-align: top;
+    }
+    .field-table tr:last-child td { border-bottom: none; }
+    .field-table td:first-child {
+      color: var(--accent-atk);
+      font-weight: 600;
+      white-space: nowrap;
+      width: 220px;
+    }
+    .def-section .field-table td:first-child { color: var(--accent-def); }
+    .note {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 1rem;
+      border-left: 4px solid var(--accent-atk);
+      margin: 1rem 0;
+      border-radius: 4px;
+    }
+    .guide-container a {
+      color: var(--accent-def);
+      text-decoration: none;
+    }
+    .guide-container a:hover {
+      text-decoration: underline;
+    }
+    .sa-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+      font-size: 0.9rem;
+    }
+    .sa-table th {
+      text-align: left;
+      padding: 0.5rem 0.75rem;
+      color: var(--text-secondary);
+      font-weight: 800;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .sa-table td {
+      padding: 0.5rem 0.75rem;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .sa-table tr:last-child td { border-bottom: none; }
+    .sa-table td:first-child {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+    .sa-table td:not(:first-child) { color: var(--text-secondary); }
+  </style>
+</head>
+<body>
+  <main class="container" style="max-width: 1000px; width: 100%; margin: 0 auto; padding: 0 2rem;">
+
+    <a href="index.html" class="back-btn">
+      <i data-lucide="chevron-left"></i>
+      Back to Calculator
+    </a>
+
+    <div class="guide-container">
+      <h1 style="text-align: center; margin-bottom: 0.5rem; font-size: 2.5rem;">Calculator Guide</h1>
+      <p style="text-align: center; color: var(--text-secondary); margin-bottom: 0.5rem; font-size: 1.05rem;">Field reference for the ATK and DEF calculators.</p>
+      <p style="text-align: center; color: var(--text-secondary); margin-bottom: 2.5rem; font-size: 0.95rem;">For a full explanation on how ATK/DEF calculation works, see <a href="razzers-guide.html">Razzer's Calcing Guide</a>.</p>
+
+      <div class="guide-section">
+        <h2>General</h2>
+        <div class="guide-content">
+          <p>• All percentage fields take the total buff percentage for that bracket, <b>not</b> a multiplier. For example, a dual +220% leader skill is entered as <b>440</b>.</p>
+          <p>• All fields support arithmetic, you can type <b>200+150</b> or <b>(5*20+100)/2</b> and it evaluates automatically.</p>
+          <p>• The copy button next to the result copies the raw unformatted number to your clipboard, ready to paste into a damage calculator.</p>
+          <p>• Calculation steps are shown below the result in real time, showing each bracket's intermediate value.</p>
+          <p>• The collapsible <b>HiPo Stats Guide</b> panel shows the flat ATK/DEF stat bonuses added to base stats from the Hidden Potential system. Useful when the Dokkan Twitter account posts a new unit with their stats at 0% HiPo.</p>
+        </div>
+      </div>
+
+      <div class="guide-section">
+        <h2>ATK Fields</h2>
+        <div class="guide-content">
+          <table class="field-table">
+            <tr><th>Field</th><th>Input</th></tr>
+            <tr>
+              <td>Base ATK Stat</td>
+              <td>The unit's raw ATK at max level, before any multipliers.</td>
+            </tr>
+            <tr>
+              <td>Skill Orb Stats</td>
+              <td>Flat ATK from HiPo skill orbs. Added to base before multiplication.</td>
+            </tr>
+            <tr>
+              <td>Leader Skill (%)</td>
+              <td>Combined ATK% from both leaders. A dual +220% lead = <b>440</b>.</td>
+            </tr>
+            <tr>
+              <td>Phase 1 / SoT Buffs (%)</td>
+              <td>All ATK% buffs active before the first attack of the turn.</td>
+            </tr>
+            <tr>
+              <td>Domain Effect (%)</td>
+              <td>ATK% from a Domain/Territory.</td>
+            </tr>
+            <tr>
+              <td>Support Items (%)</td>
+              <td>ATK% from Support Items/Memories.</td>
+            </tr>
+            <tr>
+              <td>Link Skills (%)</td>
+              <td>Total ATK% from all activated link skills.</td>
+            </tr>
+            <tr>
+              <td>Active Skills (%)</td>
+              <td>Total ATK% from all Active Skill effects.</td>
+            </tr>
+            <tr>
+              <td>Ki Multiplier (%)</td>
+              <td>The unit's Ki Multiplier at their launched Ki. Find on DokkanInfo or DokkanDB.</td>
+            </tr>
+            <tr>
+              <td>Phase 2 / Mid-Battle (%)</td>
+              <td>ATK% buffs that trigger during battle, "When Attacking", etc.</td>
+            </tr>
+          </table>
+
+          <h3>SA Configuration</h3>
+          <table class="field-table">
+            <tr><th>Field</th><th>Input</th></tr>
+            <tr>
+              <td>Rarity</td>
+              <td>TUR or LR. Determines available SA types.</td>
+            </tr>
+            <tr>
+              <td>SA Type</td>
+              <td>Most common SA Types.</td>
+            </tr>
+            <tr>
+              <td>EZA'd</td>
+              <td>Check if the unit is EZA'd. Raises the base SA multiplier.</td>
+            </tr>
+			<tr>
+              <td>Manual</td>
+              <td>Check for manual input of SA Multiplier</td>
+            </tr>
+            <tr>
+              <td>HiPo SA Boost</td>
+              <td>Level of the SA Boost Hidden Potential node. Each level = +5%. Level 6 = +30%, level 15 = +75%. Defaults to 15 (rainbow).</td>
+            </tr>
+            <tr>
+              <td>SA Effects (%)</td>
+              <td>ATK% from SA effects, e.g. a previous super's "raises ATK by X% for Y turn(s)." or an ally's SA support.</td>
+            </tr>
+            <tr>
+              <td>Finish Multiplier</td>
+              <td>Only visible when SA Type is <b>Finish</b>. Enter the base multiplier of the Finish/Active Skill plus charge counts for standby's, e.g. 750+2000 for a 100 charge count 8th Anni PHY Buu Bro's standby.</td>
+            </tr>
+          </table>
+
+          <h3>SA Multiplier Reference</h3>
+          <div style="text-align: center;">
+            <a href="https://dbz-dokkanbattle.fandom.com/wiki/Super_Attack_Multipliers" target="_blank">Fandom Wiki</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="guide-section def-section">
+        <h2>DEF Fields</h2>
+        <div class="guide-content">
+          <table class="field-table">
+            <tr><th>Field</th><th>Input</th></tr>
+            <tr>
+              <td>Base DEF Stat</td>
+              <td>The unit's raw DEF at max level, before any multipliers.</td>
+            </tr>
+            <tr>
+              <td>Skill Orb Stats</td>
+              <td>Flat DEF from HiPo skill orbs. Added to base before multiplication.</td>
+            </tr>
+            <tr>
+              <td>Leader Skill (%)</td>
+              <td>Combined DEF% from both leaders. A dual +220% lead = <b>440</b>.</td>
+            </tr>
+            <tr>
+              <td>Phase 1 / SoT Buffs (%)</td>
+              <td>All DEF% buffs active before the first attack of the turn.</td>
+            </tr>
+            <tr>
+              <td>Domain Effect (%)</td>
+              <td>DEF% from a Domain/Territory.</td>
+            </tr>
+            <tr>
+              <td>Support Items (%)</td>
+              <td>DEF% from Support Items/Memories.</td>
+            </tr>
+            <tr>
+              <td>Link Skills (%)</td>
+              <td>Total DEF% from all activated link skills.</td>
+            </tr>
+            <tr>
+              <td>Active Skills (%)</td>
+              <td>Total DEF% from all Active Skill effects.</td>
+            </tr>
+            <tr>
+              <td>Phase 2 / Mid-Battle (%)</td>
+              <td>DEF% buffs that trigger during battle, "When Receiving an Attack", etc.</td>
+            </tr>
+            <tr>
+              <td>SA Effects (%)</td>
+              <td>DEF% gained from SA effects, e.g. "raises DEF by X% for Y turn(s)" or an ally's SA support.</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+
+    </div>
+  </main>
+  <script>
+    if (typeof lucide !== 'undefined') {
+      lucide.createIcons();
+    }
+  </script>
+</body>
+</html>

@@ -37,7 +37,6 @@ svg[data-lucide],
   height: 25px !important;
   display: inline-block;
   vertical-align: middle;
-  transition: transform 0.2s;
 }
 
 .copy-btn .lucide {
@@ -131,7 +130,6 @@ i.open, svg.open {
   padding: 0.6rem;
   border-radius: 8px;
   cursor: pointer;
-  transition: all 0.2s;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -145,6 +143,18 @@ i.open, svg.open {
 
 .nav-actions {
   display: contents;
+}
+
+/* For guide pages where nav-actions is a direct child of main */
+main > .nav-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+main > .nav-actions .nav-btns-left {
+  position: static;
+  transform: none;
 }
 
 .reset-btn {

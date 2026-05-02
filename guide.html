@@ -11,6 +11,14 @@
   <link rel="icon" type="image/x-icon" href="favicon.ico">
   <script src="https://unpkg.com/lucide@latest"></script>
   <style>
+    html {
+      zoom: 0.9;
+    }
+    @media (max-width: 840px) {
+      html {
+        zoom: 1;
+      }
+    }
     body {
       align-items: flex-start !important;
       padding-top: 2rem !important;
@@ -151,6 +159,7 @@
           <p>• The copy button next to the result copies the raw unformatted number to your clipboard, ready to paste into a damage calculator.</p>
           <p>• Calculation steps are shown below the result in real time, showing each bracket's intermediate value.</p>
           <p>• The collapsible <b>HiPo Stats Guide</b> panel shows the flat ATK/DEF stat bonuses added to base stats from the Hidden Potential system. Useful when the Dokkan Twitter account posts a new unit with their stats at 0% HiPo.</p>
+		  <p>• Clicking the + icon next to the result copies your current calculation to the SA List. Click the reset icon inside the list to clear it.</p>
         </div>
       </div>
 
@@ -238,7 +247,7 @@
           <div style="text-align: center;">
             <a href="https://dbz-dokkanbattle.fandom.com/wiki/Super_Attack_Multipliers" target="_blank">Fandom Wiki</a>
           </div>
-        </div>
+          </div>
       </div>
 
       <div class="guide-section def-section">
@@ -287,7 +296,8 @@
               <td>DEF% gained from SA effects, e.g. "raises DEF by X% for Y turn(s)" or an ally's SA support.</td>
             </tr>
           </table>
-        </div>
+
+          </div>
       </div>
 
 

@@ -527,7 +527,7 @@ document.addEventListener('DOMContentLoaded', () => {
       let totalDef = defSupers[defSupers.length - 1].val;
       const totalLabelEl = document.getElementById('def-total-label');
       const totalValEl = document.getElementById('def-total');
-      if (totalLabelEl) totalLabelEl.textContent = 'Total DEF';
+      if (totalLabelEl) totalLabelEl.textContent = 'Max DEF';
       if (totalValEl) totalValEl.textContent = formatter.format(totalDef);
     } else {
       defResult.textContent = formatter.format(def);

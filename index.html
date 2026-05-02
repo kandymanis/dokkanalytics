@@ -38,19 +38,15 @@
 
 
     <div class="info-section" style="text-align: center; margin-bottom: 2rem;">
-      <div class="hipo-guide-module"
-        style="display: inline-block; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; text-align: left; font-size: 0.85rem; min-width: 250px;">
-        <div id="hipo-toggle"
-          style="display: flex; justify-content: space-between; align-items: center; cursor: pointer; padding: 1rem;">
-          <strong style="color: var(--text-secondary);">HiPo Stats Guide</strong>
-          <i id="hipo-icon" data-lucide="chevron-right" style="color: var(--text-secondary);"></i>
+      <div class="hipo-guide-module">
+        <div id="hipo-toggle" class="hipo-toggle">
+          <strong>HiPo Stats Guide</strong>
+          <i id="hipo-icon" data-lucide="chevron-right"></i>
         </div>
 
-        <div id="hipo-content"
-          style="display: none; border-top: 1px solid rgba(255,255,255,0.1); padding: 1rem;">
+        <div id="hipo-content" class="hipo-content" style="display: none;">
           <div style="margin-bottom: 1rem;">
-            <select id="hipo-percent-select"
-              style="background: #18181b; border: 1px solid rgba(255,255,255,0.2); color: white; padding: 0.2rem 0.5rem; border-radius: 4px; font-family: 'Outfit', sans-serif; cursor: pointer; width: 100%;">
+            <select id="hipo-percent-select" class="hipo-select">
               <option value="55">55%</option>
               <option value="69">69%</option>
               <option value="79">79%</option>
@@ -59,7 +55,7 @@
             </select>
           </div>
 
-          <div id="hipo-stats-display" style="line-height: 1.5;">
+          <div id="hipo-stats-display" class="hipo-stats-display">
 
           </div>
         </div>
@@ -71,52 +67,52 @@
       <div class="inputs-grid">
         <div class="input-group">
           <label for="atk-base">Base ATK Stat</label>
-          <input type="text" id="atk-base" min="0" step="1">
+          <input type="text" inputmode="decimal" id="atk-base" min="0" step="1">
         </div>
 
         <div class="input-group">
           <label for="atk-equip">Skill Orb Stats</label>
-          <input type="text" id="atk-equip" min="0" step="1">
+          <input type="text" inputmode="decimal" id="atk-equip" min="0" step="1">
         </div>
 
         <div class="input-group">
           <label for="atk-lead">Leader Skill (%)</label>
-          <input type="text" id="atk-lead" value="440" min="0" step="1">
+          <input type="text" inputmode="decimal" id="atk-lead" value="440" min="0" step="1">
         </div>
 
         <div class="input-group">
           <label for="atk-phase1">Phase 1 / SoT (%)</label>
-          <input type="text" id="atk-phase1" min="0" step="1">
+          <input type="text" inputmode="decimal" id="atk-phase1" min="0" step="1">
         </div>
 
         <div class="input-group">
           <label for="atk-domain">Domain Effect (%)</label>
-          <input type="text" id="atk-domain" min="0" step="1">
+          <input type="text" inputmode="decimal" id="atk-domain" min="0" step="1">
         </div>
 
         <div class="input-group">
           <label for="atk-items">Support Items (%)</label>
-          <input type="text" id="atk-items" min="0" step="1">
+          <input type="text" inputmode="decimal" id="atk-items" min="0" step="1">
         </div>
 
         <div class="input-group">
           <label for="atk-links">Link Skills (%)</label>
-          <input type="text" id="atk-links" min="0" step="1">
+          <input type="text" inputmode="decimal" id="atk-links" min="0" step="1">
         </div>
 
         <div class="input-group">
           <label for="atk-active">Active Skills (%)</label>
-          <input type="text" id="atk-active" min="0" step="1">
+          <input type="text" inputmode="decimal" id="atk-active" min="0" step="1">
         </div>
 
         <div class="input-group">
           <label for="atk-ki">Ki Multiplier (%)</label>
-          <input type="text" id="atk-ki" min="0" step="1">
+          <input type="text" inputmode="decimal" id="atk-ki" min="0" step="1">
         </div>
 
         <div class="input-group">
           <label for="atk-phase2">Phase 2 / Mid-battle (%)</label>
-          <input type="text" id="atk-phase2" min="0" step="1">
+          <input type="text" inputmode="decimal" id="atk-phase2" min="0" step="1">
         </div>
 
 
@@ -152,12 +148,12 @@
                 <option value="ultimate">Ultimate</option>
                 <option value="finish">Finish</option>
               </select>
-              <input type="text" id="sa-manual-mult" style="display: none;">
+              <input type="text" inputmode="decimal" id="sa-manual-mult" style="display: none;">
             </div>
             
             <div class="input-group" id="charge-count-group" style="position: absolute; visibility: hidden; opacity: 0; pointer-events: none;">
               <label for="atk-charge-count">Finish Multiplier</label>
-              <input type="text" id="atk-charge-count" min="0" step="1">
+              <input type="text" inputmode="decimal" id="atk-charge-count" min="0" step="1">
               <span class="tooltip">Base Multiplier of the Finish/Active + Charge Counts for Standby</span>
             </div>
           </div>
@@ -165,13 +161,13 @@
           <div class="sa-row">
             <div class="input-group">
               <label for="atk-hp-boost">HiPo SA Boost</label>
-              <input type="text" id="atk-hp-boost" value="15" min="0" max="30" step="1">
+              <input type="text" inputmode="decimal" id="atk-hp-boost" value="15" min="0" step="1">
               <span class="tooltip">Level of SA Boost Node (+5% per level)</span>
             </div>
 
             <div class="input-group">
               <label for="atk-sa-effects">SA Effects (%)</label>
-              <input type="text" id="atk-sa-effects" min="0" step="1">
+              <input type="text" inputmode="decimal" id="atk-sa-effects" min="0" step="1">
             </div>
           </div>
 
@@ -179,14 +175,29 @@
       </div>
 
       <div class="result-board">
-        <h3>
-          Total ATK
-          <button id="atk-copy" class="copy-btn" title="Copy Raw Value" aria-label="Copy Raw Value">
-            <i data-lucide="clipboard"></i>
+        <div class="result-section">
+          <h3 id="atk-title" style="position: relative; display: flex; justify-content: center; align-items: center;">
+            <span>ATK</span>
+            <div style="position: absolute; right: 0; display: flex; gap: 0.5rem;">
+              <button id="atk-copy" class="copy-btn" title="Copy Raw Value" aria-label="Copy Raw Value">
+                <i data-lucide="clipboard"></i>
+              </button>
+              <button id="atk-add" class="copy-btn" title="Add to SA List" aria-label="Add to SA List">
+                <i data-lucide="plus"></i>
+              </button>
+            </div>
+          </h3>
+          <div class="result-value" id="atk-result">0</div>
+          <div class="calculation-steps" id="atk-steps" style="margin-top: 40px;"></div>
+        </div>
+        <div id="atk-supers-container" class="result-section" style="display: none; position: relative; margin-top: 2.5rem;">
+          <button id="atk-supers-reset" class="copy-btn" style="position: absolute; top: 1.5rem; right: 1.5rem;" title="Reset SA List" aria-label="Reset SA List">
+            <i data-lucide="rotate-ccw"></i>
           </button>
-        </h3>
-        <div class="result-value" id="atk-result">0</div>
-        <div class="calculation-steps" id="atk-steps"></div>
+          <div id="atk-total-apt" class="sa-total-label" style="color: var(--text-secondary);"></div>
+          <div id="atk-total-apt-value" class="result-value"></div>
+          <div id="atk-supers-list" style="margin-top: 40px;"></div>
+        </div>
       </div>
     </section>
 
@@ -195,66 +206,95 @@
       <div class="inputs-grid">
         <div class="input-group">
           <label for="def-base">Base DEF Stat</label>
-          <input type="text" id="def-base" min="0" step="1">
+          <input type="text" inputmode="decimal" id="def-base" min="0" step="1">
         </div>
 
         <div class="input-group">
           <label for="def-equip">Skill Orb Stats</label>
-          <input type="text" id="def-equip" min="0" step="1">
+          <input type="text" inputmode="decimal" id="def-equip" min="0" step="1">
           <span class="tooltip">Additional raw stats added to Base</span>
         </div>
 
         <div class="input-group">
           <label for="def-lead">Leader Skill (%)</label>
-          <input type="text" id="def-lead" value="440" min="0" step="1">
+          <input type="text" inputmode="decimal" id="def-lead" value="440" min="0" step="1">
         </div>
 
         <div class="input-group">
           <label for="def-phase1">Phase 1 / SoT (%)</label>
-          <input type="text" id="def-phase1" min="0" step="1">
+          <input type="text" inputmode="decimal" id="def-phase1" min="0" step="1">
         </div>
 
         <div class="input-group">
           <label for="def-domain">Domain Effect (%)</label>
-          <input type="text" id="def-domain" min="0" step="1">
+          <input type="text" inputmode="decimal" id="def-domain" min="0" step="1">
         </div>
 
         <div class="input-group">
           <label for="def-items">Support Items (%)</label>
-          <input type="text" id="def-items" min="0" step="1">
+          <input type="text" inputmode="decimal" id="def-items" min="0" step="1">
         </div>
 
         <div class="input-group">
           <label for="def-links">Link Skills (%)</label>
-          <input type="text" id="def-links" min="0" step="1">
+          <input type="text" inputmode="decimal" id="def-links" min="0" step="1">
         </div>
 
         <div class="input-group">
           <label for="def-active">Active Skills (%)</label>
-          <input type="text" id="def-active" min="0" step="1">
+          <input type="text" inputmode="decimal" id="def-active" min="0" step="1">
         </div>
 
         <div class="input-group">
           <label for="def-phase2">Phase 2 / Mid-battle (%)</label>
-          <input type="text" id="def-phase2" min="0" step="1">
+          <input type="text" inputmode="decimal" id="def-phase2" min="0" step="1">
         </div>
 
-        <div class="input-group">
-          <label for="def-sa">SA Effects (%)</label>
-          <input type="text" id="def-sa" min="0" step="1">
-          <span class="tooltip">Buffs gained specifically from SA</span>
+        <div class="sa-config-grid">
+          <div class="sa-row">
+            <div class="input-group">
+              <label for="def-sa">SA Effects (%)</label>
+              <input type="text" inputmode="decimal" id="def-sa" min="0" step="1">
+              <span class="tooltip">Buffs gained specifically from SA</span>
+            </div>
+
+            <div class="input-group">
+              <label for="def-sa-type" id="def-sa-type-label">SA Type</label>
+              <select id="def-sa-type">
+                <option value="U. Super Attack">U. Super Attack</option>
+                <option value="Super Attack" selected>Super Attack</option>
+                <option value="EX Super Attack">EX Super Attack</option>
+                <option value="Finish Skill">Finish Skill</option>
+              </select>
+            </div>
+          </div>
         </div>
       </div>
 
       <div class="result-board">
-        <h3>
-          Total DEF
-          <button id="def-copy" class="copy-btn" title="Copy Raw Value" aria-label="Copy Raw Value">
-            <i data-lucide="clipboard"></i>
+        <div class="result-section">
+          <h3 id="def-title" style="position: relative; display: flex; justify-content: center; align-items: center;">
+            <span>DEF</span>
+            <div style="position: absolute; right: 0; display: flex; gap: 0.5rem;">
+              <button id="def-copy" class="copy-btn" title="Copy Raw Value" aria-label="Copy Raw Value">
+                <i data-lucide="clipboard"></i>
+              </button>
+              <button id="def-add" class="copy-btn" title="Add to SA List" aria-label="Add to SA List">
+                <i data-lucide="plus"></i>
+              </button>
+            </div>
+          </h3>
+          <div class="result-value" id="def-result">0</div>
+          <div class="calculation-steps" id="def-steps" style="margin-top: 40px;"></div>
+        </div>
+        <div id="def-supers-container" class="result-section" style="display: none; position: relative; margin-top: 2.5rem;">
+          <button id="def-supers-reset" class="copy-btn" style="position: absolute; top: 1.5rem; right: 1.5rem;" title="Reset SA List" aria-label="Reset SA List">
+            <i data-lucide="rotate-ccw"></i>
           </button>
-        </h3>
-        <div class="result-value" id="def-result">0</div>
-        <div class="calculation-steps" id="def-steps"></div>
+          <div id="def-total-label" class="sa-total-label" style="color: var(--text-secondary);"></div>
+          <div id="def-total" class="result-value"></div>
+          <div id="def-supers-list" style="margin-top: 40px;"></div>
+        </div>
       </div>
     </section>
 

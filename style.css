@@ -1,5 +1,11 @@
 html {
-  zoom: 0.9;
+  zoom: 0.8;
+}
+
+@media (max-width: 840px) {
+  html {
+    zoom: 1;
+  }
 }
 
 :root {
@@ -142,10 +148,9 @@ i.open, svg.open {
 }
 
 .nav-actions {
-  display: contents;
+  display: flex;
 }
 
-/* For guide pages where nav-actions is a direct child of main */
 main > .nav-actions {
   display: flex;
   gap: 0.5rem;
@@ -245,7 +250,7 @@ main > .nav-actions .nav-btns-left {
 #def-section .input-group input:focus,
 #def-section .input-group select:focus {
   border-color: var(--accent-def);
-  box-shadow: 0 0 10px rgba(0, 230, 118, 0.2);
+  box-shadow: 0 0 10px rgba(51, 204, 255, 0.2);
 }
 
 .tooltip {
@@ -270,13 +275,142 @@ main > .nav-actions .nav-btns-left {
 }
 
 .result-board {
-  background: rgba(0, 0, 0, 0.4);
-  border-radius: 16px;
-  padding: 2rem;
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.result-section {
+  background: rgba(0, 0, 0, 0.2);
+  padding: 1.5rem;
   position: relative;
-  overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  text-align: center;
+}
+
+.result-section:first-child { border-radius: 16px 16px 4px 4px; }
+.result-section:last-child { border-radius: 4px 4px 16px 16px; }
+.result-section:not(:first-child):not(:last-child) { border-radius: 4px; }
+.result-section:only-child { border-radius: 16px; }
+
+#atk-supers-list, #def-supers-list { 
+  text-transform: uppercase;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  font-size: 0.91rem;
+}
+
+#atk-supers-list, #def-supers-list {
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 0.5rem 2.5rem;
+  width: fit-content;
+  margin: 0 auto;
+}
+
+.super-item {
+  display: contents;
+}
+
+.super-ordinal-container {
+  position: absolute;
+  left: -0.5rem;
+  transform: translateX(-100%);
+  font-size: 0.75rem;
+  opacity: 0.5;
+  white-space: nowrap;
+}
+
+.ordinal-suffix {
+  font-size: 0.7em;
+}
+
+.super-label {
+  grid-column: 1;
+  position: relative;
+  text-align: left;
+  color: var(--text-secondary);
+}
+
+.super-value {
+  grid-column: 2;
+  text-align: right;
+}
+
+.super-value.atk-value {
+  color: var(--accent-atk);
+}
+
+.super-value.def-value {
+  color: var(--accent-def);
+}
+
+.sa-total-label {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.2rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.hipo-guide-module {
+  display: inline-block;
+  background: rgba(0,0,0,0.3);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 12px;
+  text-align: left;
+  font-size: 0.85rem;
+  min-width: 250px;
+}
+
+.hipo-toggle {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  padding: 1rem;
+}
+
+.hipo-toggle strong, .hipo-toggle i {
+  color: var(--text-secondary);
+}
+
+.hipo-content {
+  border-top: 1px solid rgba(255,255,255,0.1);
+  padding: 1rem;
+}
+
+.hipo-select {
+  background: #18181b;
+  border: 1px solid rgba(255,255,255,0.2);
+  color: white;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  font-family: 'Outfit', sans-serif;
+  cursor: pointer;
+  width: 100%;
+}
+
+.hipo-stats-display {
+  line-height: 1.5;
+}
+
+.sa-config-checkboxes {
+  position: absolute;
+  top: 1rem;
+  right: 1.5rem;
+  display: flex;
+  justify-content: center;
+  flex-direction: row;
+  gap: 1rem;
+}
+
+.checkbox-flex-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
 }
 
 .result-board h3 {
@@ -287,6 +421,7 @@ main > .nav-actions .nav-btns-left {
   font-family: 'Outfit', sans-serif;
   color: var(--text-secondary);
   font-size: 1.2rem;
+  font-weight: 800;
   text-transform: uppercase;
   margin-bottom: 1rem;
   letter-spacing: 2px;
@@ -325,13 +460,9 @@ main > .nav-actions .nav-btns-left {
 }
 
 .calculation-steps {
-  margin-top: 1.5rem;
   font-size: 0.85rem;
   color: var(--text-secondary);
   font-family: monospace;
-  background: rgba(255, 255, 255, 0.02);
-  padding: 1rem;
-  border-radius: 8px;
   word-wrap: break-word;
   opacity: 0.7;
 }
@@ -471,6 +602,16 @@ main > .nav-actions .nav-btns-left {
   margin-top: 1rem; 
   position: relative;
   min-height: 250px;
+}
+
+#def-section .sa-config-grid {
+  min-height: auto;
+  padding-top: 1.5rem;
+}
+
+#def-section .sa-config-grid {
+  min-height: auto;
+  padding-top: 1.5rem;
 }
 
 .sa-row {

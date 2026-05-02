@@ -97,6 +97,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const formatter = new Intl.NumberFormat('en-US');
 
+  let atkSupers = [];
+  let defSupers = [];
+  let currentAtkVal = 0;
+  let currentDefVal = 0;
+  let currentAtkBaseType = "";
+  let currentDefBaseType = "";
+
+  function getOrdinal(n) {
+    const s = ["th", "st", "nd", "rd"],
+      v = n % 100;
+    return n + (s[(v - 20) % 10] || s[v] || s[0]);
+  }
+
+  function getOrdinalHTML(n) {
+    const s = ["th", "st", "nd", "rd"],
+      v = n % 100;
+    const suffix = s[(v - 20) % 10] || s[v] || s[0];
+    return `${n}<span class="ordinal-suffix">${suffix}</span>`;
+  }
+
   const atkInputs = [
     'atk-base', 'atk-equip', 'atk-lead', 'atk-phase1', 'atk-domain',
     'atk-items', 'atk-links', 'atk-active', 'atk-ki',
@@ -177,8 +197,7 @@ document.addEventListener('DOMContentLoaded', () => {
     saType.add(new Option('Finish', 'finish'));
   }
 
-  saRarity.addEventListener('change', () => {
-    updateSATypeOptions();
+  function updateChargeCountVisibility() {
     const chargeGroup = document.getElementById('charge-count-group');
     const isFinish = saType.value === 'finish';
     if (chargeGroup) {
@@ -194,25 +213,17 @@ document.addEventListener('DOMContentLoaded', () => {
         chargeGroup.style.pointerEvents = 'none';
       }
     }
+  }
+
+  saRarity.addEventListener('change', () => {
+    updateSATypeOptions();
+    updateChargeCountVisibility();
+    updateManualMode();
     calculateATK();
   });
 
   [saType, saEza].forEach(el => el.addEventListener('change', () => {
-    const chargeGroup = document.getElementById('charge-count-group');
-    const isFinish = saType.value === 'finish';
-    if (chargeGroup) {
-      if (isFinish) {
-        chargeGroup.style.position = 'relative';
-        chargeGroup.style.visibility = 'visible';
-        chargeGroup.style.opacity = '1';
-        chargeGroup.style.pointerEvents = 'auto';
-      } else {
-        chargeGroup.style.position = 'absolute';
-        chargeGroup.style.visibility = 'hidden';
-        chargeGroup.style.opacity = '0';
-        chargeGroup.style.pointerEvents = 'none';
-      }
-    }
+    updateChargeCountVisibility();
     updateManualMode();
     calculateATK();
   }));
@@ -227,8 +238,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const defInputs = [
     'def-base', 'def-equip', 'def-lead', 'def-phase1', 'def-domain',
     'def-items', 'def-links', 'def-active',
-    'def-phase2', 'def-sa'
+    'def-phase2', 'def-sa', 'def-sa-type'
   ].map(id => document.getElementById(id));
+
+  const defSaType = document.getElementById('def-sa-type');
 
   const atkResult = document.getElementById('atk-result');
   const atkSteps = document.getElementById('atk-steps');
@@ -241,25 +254,50 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function safeEval(expr) {
     if (!expr) return 0;
-
-    let sanitized = String(expr).replace(/[^0-9+\-*/.()\s]/g, '');
+    let sanitized = String(expr).replace(/[^0-9+\-*/.()\s]/g, '').trim();
     if (!sanitized) return 0;
-
+    while (sanitized.length > 0 && /[+\-*/.()]$/.test(sanitized)) {
+      sanitized = sanitized.slice(0, -1).trim();
+    }
+    if (!sanitized) return 0;
     try {
-      const result = new Function('return ' + sanitized)();
-      return isNaN(result) ? 0 : result;
+      const tokens = [];
+      const re = /(\d+\.?\d*|[+\-*/()])/g;
+      let m;
+      while ((m = re.exec(sanitized)) !== null) tokens.push(m[1]);
+      let pos = 0;
+      function parseExpr() {
+        let left = parseTerm();
+        while (pos < tokens.length && (tokens[pos] === '+' || tokens[pos] === '-')) {
+          const op = tokens[pos++];
+          const right = parseTerm();
+          left = op === '+' ? left + right : left - right;
+        }
+        return left;
+      }
+      function parseTerm() {
+        let left = parseFactor();
+        while (pos < tokens.length && (tokens[pos] === '*' || tokens[pos] === '/')) {
+          const op = tokens[pos++];
+          const right = parseFactor();
+          left = op === '*' ? left * right : left / right;
+        }
+        return left;
+      }
+      function parseFactor() {
+        if (tokens[pos] === '(') {
+          pos++;
+          const val = parseExpr();
+          if (tokens[pos] === ')') pos++;
+          return val;
+        }
+        const num = parseFloat(tokens[pos++]);
+        return isNaN(num) ? 0 : num;
+      }
+      const result = parseExpr();
+      return isNaN(result) || !isFinite(result) ? 0 : result;
     } catch (e) {
-      let clean = sanitized.trim();
-      while (clean.length > 0 && /[\+\-\*\/\.]$/.test(clean)) {
-        clean = clean.slice(0, -1).trim();
-      }
-      if (!clean) return 0;
-      try {
-        const fallback = new Function('return ' + clean)();
-        return isNaN(fallback) ? 0 : fallback;
-      } catch (err) {
-        return 0;
-      }
+      return 0;
     }
   }
 
@@ -280,6 +318,7 @@ document.addEventListener('DOMContentLoaded', () => {
     } else if (type === 'mega-colossal') {
       mult = isEza ? 620 : 570;
     }
+    if (mult === 0) mult = 500;
     return mult;
   }
 
@@ -367,7 +406,51 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (steps.length === 0) steps.push(baseStr);
 
-    atkResult.textContent = formatter.format(atk);
+    currentAtkVal = atk;
+    
+    let baseType = "Super Attack";
+    if (saManual.checked) {
+      baseType = "Super";
+    } else {
+      const t = saType.value;
+      if (t === 'mega-colossal') baseType = "U. Super Attack";
+      else if (t === 'ultimate') baseType = "EX Super Attack";
+      else if (t === 'finish') baseType = "Finish Skill";
+      else baseType = "Super Attack";
+    }
+    currentAtkBaseType = baseType;
+
+    if (atkSupers.length > 0) {
+      atkResult.textContent = formatter.format(atk);
+      
+      const containerEl = document.getElementById('atk-supers-container');
+      if (containerEl) containerEl.style.display = 'block';
+      const listEl = document.getElementById('atk-supers-list');
+      
+      let counts = {};
+      atkSupers.forEach(s => counts[s.type] = (counts[s.type] || 0) + 1);
+      
+      let runningCounts = {};
+      listEl.innerHTML = atkSupers.map((s) => {
+        runningCounts[s.type] = (runningCounts[s.type] || 0) + 1;
+        let ordinalHTML = "";
+        if (counts[s.type] > 1) {
+          ordinalHTML = getOrdinalHTML(runningCounts[s.type]);
+        }
+        return `<div class="super-item"><span class="super-label"><span class="super-ordinal-container">${ordinalHTML}</span>${s.type}</span><span class="super-value atk-value">${formatter.format(s.val)}</span></div>`;
+      }).join('');
+
+      let totalApt = atkSupers.reduce((a, b) => a + b.val, 0);
+      const totalLabelEl = document.getElementById('atk-total-apt');
+      const totalValEl = document.getElementById('atk-total-apt-value');
+      if (totalLabelEl) totalLabelEl.textContent = 'Total ATK';
+      if (totalValEl) totalValEl.textContent = formatter.format(totalApt);
+    } else {
+      atkResult.textContent = formatter.format(atk);
+      const containerEl = document.getElementById('atk-supers-container');
+      if (containerEl) containerEl.style.display = 'none';
+    }
+
     atkSteps.innerHTML = steps.join(' <span style="color:var(--accent-atk)">➔</span> ');
   }
 
@@ -418,16 +501,53 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (steps.length === 0) steps.push(baseStr);
 
-    defResult.textContent = formatter.format(def);
+    currentDefVal = def;
+    currentDefBaseType = defSaType ? defSaType.value : "Super Attack";
+
+    if (defSupers.length > 0) {
+      defResult.textContent = formatter.format(def);
+      
+      const containerEl = document.getElementById('def-supers-container');
+      if (containerEl) containerEl.style.display = 'block';
+      const listEl = document.getElementById('def-supers-list');
+      
+      let counts = {};
+      defSupers.forEach(s => counts[s.type] = (counts[s.type] || 0) + 1);
+      
+      let runningCounts = {};
+      listEl.innerHTML = defSupers.map((s) => {
+        runningCounts[s.type] = (runningCounts[s.type] || 0) + 1;
+        let ordinalHTML = "";
+        if (counts[s.type] > 1) {
+          ordinalHTML = getOrdinalHTML(runningCounts[s.type]);
+        }
+        return `<div class="super-item"><span class="super-label"><span class="super-ordinal-container">${ordinalHTML}</span>${s.type}</span><span class="super-value def-value">${formatter.format(s.val)}</span></div>`;
+      }).join('');
+
+      let totalDef = defSupers[defSupers.length - 1].val;
+      const totalLabelEl = document.getElementById('def-total-label');
+      const totalValEl = document.getElementById('def-total');
+      if (totalLabelEl) totalLabelEl.textContent = 'Total DEF';
+      if (totalValEl) totalValEl.textContent = formatter.format(totalDef);
+    } else {
+      defResult.textContent = formatter.format(def);
+      const containerEl = document.getElementById('def-supers-container');
+      if (containerEl) containerEl.style.display = 'none';
+    }
+
     defSteps.innerHTML = steps.join(' <span style="color:var(--accent-def)">➔</span> ');
   }
 
   atkInputs.forEach(input => {
+    if (!input) return;
     input.addEventListener('input', calculateATK);
+    if (input.tagName === 'SELECT') input.addEventListener('change', calculateATK);
   });
 
   defInputs.forEach(input => {
+    if (!input) return;
     input.addEventListener('input', calculateDEF);
+    if (input.tagName === 'SELECT') input.addEventListener('change', calculateDEF);
   });
 
   const atkCopy = document.getElementById('atk-copy');
@@ -441,10 +561,10 @@ document.addEventListener('DOMContentLoaded', () => {
       await navigator.clipboard.writeText(rawVal);
       const oldHtml = btn.innerHTML;
       btn.innerHTML = '<i data-lucide="check" style="color: #33ccff;"></i>';
-      if (typeof lucide !== 'undefined') lucide.createIcons();
+      if (typeof lucide !== 'undefined') lucide.createIcons({ root: btn });
       setTimeout(() => {
         btn.innerHTML = oldHtml;
-        if (typeof lucide !== 'undefined') lucide.createIcons();
+        if (typeof lucide !== 'undefined') lucide.createIcons({ root: btn });
       }, 1500);
     } catch (err) {
       console.error('Failed to copy: ', err);
@@ -454,21 +574,80 @@ document.addEventListener('DOMContentLoaded', () => {
   atkCopy.addEventListener('click', () => copyToClipboard('atk-result', atkCopy));
   defCopy.addEventListener('click', () => copyToClipboard('def-result', defCopy));
 
+  const atkAdd = document.getElementById('atk-add');
+  const defAdd = document.getElementById('def-add');
+
+  if (atkAdd) {
+    atkAdd.addEventListener('click', () => {
+      calculateATK();
+      let type = "Super Attack";
+      if (saManual.checked) {
+        type = "Super";
+      } else {
+        const t = saType.value;
+        if (t === 'mega-colossal') type = "U. Super Attack";
+        else if (t === 'ultimate') type = "EX Super Attack";
+        else if (t === 'finish') type = "Finish Skill";
+      }
+      atkSupers.push({ val: currentAtkVal, type: type });
+      calculateATK();
+    });
+  }
+
+  if (defAdd) {
+    defAdd.addEventListener('click', () => {
+      calculateDEF();
+      const type = defSaType ? defSaType.value : "Super Attack";
+      defSupers.push({ val: currentDefVal, type: type });
+      calculateDEF();
+    });
+  }
+
+  const atkSupersReset = document.getElementById('atk-supers-reset');
+  if (atkSupersReset) {
+    atkSupersReset.addEventListener('click', () => {
+      atkSupers = [];
+      calculateATK();
+    });
+  }
+
+  const defSupersReset = document.getElementById('def-supers-reset');
+  if (defSupersReset) {
+    defSupersReset.addEventListener('click', () => {
+      defSupers = [];
+      calculateDEF();
+    });
+  }
+
   const resetBtn = document.getElementById('reset-btn');
   if (resetBtn) {
     resetBtn.addEventListener('click', () => {
       const excludedIds = ['atk-lead', 'def-lead', 'atk-hp-boost'];
 
       [...atkInputs, ...defInputs].forEach(input => {
+        if (!input) return;
         if (!excludedIds.includes(input.id)) {
-          input.value = '';
+          if (input.tagName === 'SELECT') {
+            input.selectedIndex = 0;
+          } else {
+            input.value = '';
+          }
         }
       });
+
+      saRarity.value = 'lr';
+      updateSATypeOptions();
 
       saEza.checked = false;
       saManual.checked = false;
       saManualMult.value = '';
       updateManualMode();
+      updateChargeCountVisibility();
+
+      if (defSaType) defSaType.value = 'Super Attack';
+
+      atkSupers = [];
+      defSupers = [];
 
       calculateATK();
       calculateDEF();

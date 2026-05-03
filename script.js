@@ -527,7 +527,7 @@ document.addEventListener('DOMContentLoaded', () => {
       let totalDef = defSupers[defSupers.length - 1].val;
       const totalLabelEl = document.getElementById('def-total-label');
       const totalValEl = document.getElementById('def-total');
-      if (totalLabelEl) totalLabelEl.textContent = 'Max DEF';
+      if (totalLabelEl) totalLabelEl.textContent = 'Total DEF';
       if (totalValEl) totalValEl.textContent = formatter.format(totalDef);
     } else {
       defResult.textContent = formatter.format(def);
@@ -660,4 +660,75 @@ document.addEventListener('DOMContentLoaded', () => {
   if (typeof lucide !== 'undefined') {
     lucide.createIcons();
   }
+
+	const GUIDE_KEY = "Dokkanalytics.GuidePopupDismissed";
+
+	const guideBtn = document.getElementById("guide-btn");
+	const highlight = document.getElementById("guide-highlight");
+	const pointer = document.getElementById("guide-pointer");
+
+	function positionGuideElements() {
+	  if (!guideBtn || !highlight || !pointer) return;
+
+	  const rect = guideBtn.getBoundingClientRect();
+	  let centerX = rect.left + rect.width / 2;
+	  let centerY = rect.top + rect.height / 2;
+
+	  if (window.innerWidth > 841) {
+		const parentRect = document.querySelector('.nav-btns-left').getBoundingClientRect();
+		centerX = (centerX - parentRect.left) + 17; 
+		centerY = (centerY - parentRect.top) + 4;
+	  } else {
+        centerX += 37;
+		centerY += 63;
+      }
+
+	  highlight.style.left = `${centerX}px`;
+	  highlight.style.top = `${centerY}px`;
+	  highlight.style.transform = "translate(-50%, -50%)";
+
+	  if (window.innerWidth <= 840) {
+	    pointer.src = "arrow-mobile.png";
+	    pointer.style.left = `${centerX - 195}px`; // Adjusted for 200px width
+	    pointer.style.top = `${centerY - 105}px`;  // Adjusted for 113px height
+	  } else {
+	    pointer.src = "arrow-desktop.png";
+	    pointer.style.left = `${centerX - 315}px`; // Shifted left so tip hits circle
+	    pointer.style.top = `${centerY + 25}px`;
+	  }
+	}
+
+	function showGuidePopup() {
+	  positionGuideElements();
+
+	  requestAnimationFrame(() => {
+		highlight?.classList.add("guide-visible");
+		pointer?.classList.add("guide-visible");
+	  });
+	}
+
+	function initGuidePopup() {
+	  const dismissed = localStorage.getItem(GUIDE_KEY) === "true";
+
+	  if (dismissed) {
+		highlight?.classList.add("guide-hidden");
+		pointer?.classList.add("guide-hidden");
+		return;
+	  }
+
+	  setTimeout(showGuidePopup, 0);
+	}
+
+	pointer?.addEventListener("click", () => {
+	  localStorage.setItem(GUIDE_KEY, "true");
+
+	  highlight?.classList.add("guide-hidden");
+	  pointer?.classList.add("guide-hidden");
+	});
+
+	window.addEventListener("resize", positionGuideElements);
+	window.addEventListener("scroll", positionGuideElements);
+
+	initGuidePopup();
+  
 });

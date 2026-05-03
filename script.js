@@ -689,11 +689,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	  if (window.innerWidth <= 840) {
 	    pointer.src = "arrow-mobile.png";
-	    pointer.style.left = `${centerX - 195}px`; // Adjusted for 200px width
-	    pointer.style.top = `${centerY - 105}px`;  // Adjusted for 113px height
+	    pointer.style.left = `${centerX - 195}px`; 
+	    pointer.style.top = `${centerY - 105}px`; 
 	  } else {
 	    pointer.src = "arrow-desktop.png";
-	    pointer.style.left = `${centerX - 315}px`; // Shifted left so tip hits circle
+	    pointer.style.left = `${centerX - 315}px`;
 	    pointer.style.top = `${centerY + 25}px`;
 	  }
 	}

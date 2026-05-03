@@ -689,11 +689,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	  if (window.innerWidth <= 840) {
 	    pointer.src = "arrow-mobile.png";
-	    pointer.style.left = `${centerX - 195}px`; 
+	    pointer.style.left = `${centerX - 195}px`;
 	    pointer.style.top = `${centerY - 105}px`; 
 	  } else {
 	    pointer.src = "arrow-desktop.png";
-	    pointer.style.left = `${centerX - 315}px`;
+	    pointer.style.left = `${centerX - 315}px`; 
 	    pointer.style.top = `${centerY + 25}px`;
 	  }
 	}
@@ -720,6 +720,13 @@ document.addEventListener('DOMContentLoaded', () => {
 	}
 
 	pointer?.addEventListener("click", () => {
+	  localStorage.setItem(GUIDE_KEY, "true");
+
+	  highlight?.classList.add("guide-hidden");
+	  pointer?.classList.add("guide-hidden");
+	});
+
+	guideBtn?.addEventListener("click", () => {
 	  localStorage.setItem(GUIDE_KEY, "true");
 
 	  highlight?.classList.add("guide-hidden");

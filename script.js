@@ -252,54 +252,78 @@ document.addEventListener('DOMContentLoaded', () => {
     return 1 + (val / 100);
   }
 
-  function safeEval(expr) {
-    if (!expr) return 0;
-	let sanitized = String(expr).replace(/[xX×]/g, '*').replace(/[^0-9+\-*/.()\s]/g, '').trim();
-    if (!sanitized) return 0;
-    while (sanitized.length > 0 && /[+\-*/.()]$/.test(sanitized)) {
-      sanitized = sanitized.slice(0, -1).trim();
-    }
-    if (!sanitized) return 0;
-    try {
-      const tokens = [];
-      const re = /(\d+\.?\d*|[+\-*/()])/g;
-      let m;
-      while ((m = re.exec(sanitized)) !== null) tokens.push(m[1]);
-      let pos = 0;
-      function parseExpr() {
-        let left = parseTerm();
-        while (pos < tokens.length && (tokens[pos] === '+' || tokens[pos] === '-')) {
-          const op = tokens[pos++];
-          const right = parseTerm();
-          left = op === '+' ? left + right : left - right;
-        }
-        return left;
-      }
-      function parseTerm() {
-        let left = parseFactor();
-        while (pos < tokens.length && (tokens[pos] === '*' || tokens[pos] === '/')) {
-          const op = tokens[pos++];
-          const right = parseFactor();
-          left = op === '*' ? left * right : left / right;
-        }
-        return left;
-      }
-      function parseFactor() {
-        if (tokens[pos] === '(') {
-          pos++;
-          const val = parseExpr();
-          if (tokens[pos] === ')') pos++;
-          return val;
-        }
-        const num = parseFloat(tokens[pos++]);
-        return isNaN(num) ? 0 : num;
-      }
-      const result = parseExpr();
-      return isNaN(result) || !isFinite(result) ? 0 : result;
-    } catch (e) {
-      return 0;
-    }
+function safeEval(expr) {
+  if (!expr) return 0;
+  
+  let sanitized = String(expr)
+    .replace(/[xX×]/g, '*')
+    .replace(/[÷]/g, '/')
+    .replace(/[^0-9+\-*/%^().\s]/g, '')
+    .trim();
+
+  if (!sanitized) return 0;
+
+  while (sanitized.length > 0 && /[+\-*/%^.()]$/.test(sanitized)) {
+    sanitized = sanitized.slice(0, -1).trim();
   }
+
+  try {
+    const tokens = [];
+    const re = /(\d+\.?\d*|\*\*|[+\-*/%^()])/g;
+    let m;
+    while ((m = re.exec(sanitized)) !== null) tokens.push(m[1]);
+    
+    let pos = 0;
+
+    function parseExpr() {
+      let left = parseTerm();
+      while (pos < tokens.length && (tokens[pos] === '+' || tokens[pos] === '-')) {
+        const op = tokens[pos++];
+        const right = parseTerm();
+        left = op === '+' ? left + right : left - right;
+      }
+      return left;
+    }
+
+    function parseTerm() {
+      let left = parsePower();
+      while (pos < tokens.length && (tokens[pos] === '*' || tokens[pos] === '/' || tokens[pos] === '%')) {
+        const op = tokens[pos++];
+        const right = parsePower();
+        if (op === '*') left *= right;
+        else if (op === '/') left /= right;
+        else if (op === '%') left %= right;
+      }
+      return left;
+    }
+
+    function parsePower() {
+      let left = parseFactor();
+      while (pos < tokens.length && (tokens[pos] === '^' || tokens[pos] === '**')) {
+        pos++; 
+        const right = parseFactor();
+        left = Math.pow(left, right);
+      }
+      return left;
+    }
+
+    function parseFactor() {
+      if (tokens[pos] === '(') {
+        pos++;
+        const val = parseExpr();
+        if (tokens[pos] === ')') pos++;
+        return val;
+      }
+      const num = parseFloat(tokens[pos++]);
+      return isNaN(num) ? 0 : num;
+    }
+
+    const result = parseExpr();
+    return isNaN(result) || !isFinite(result) ? 0 : result;
+  } catch (e) {
+    return 0;
+  }
+}
 
   function getBaseSAMultiplier(type, rarity, isEza) {
     let mult = 0;

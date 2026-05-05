@@ -254,7 +254,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function safeEval(expr) {
     if (!expr) return 0;
-    let sanitized = String(expr).replace(/[^0-9+\-*/.()\s]/g, '').trim();
+	let sanitized = String(expr).replace(/[xX×]/g, '*').replace(/[^0-9+\-*/.()\s]/g, '').trim();
     if (!sanitized) return 0;
     while (sanitized.length > 0 && /[+\-*/.()]$/.test(sanitized)) {
       sanitized = sanitized.slice(0, -1).trim();

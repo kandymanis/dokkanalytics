@@ -252,6 +252,21 @@ document.addEventListener('DOMContentLoaded', () => {
     return 1 + (val / 100);
   }
 
+  function parseInputAndRaw(expr) {
+    if (!expr) return { mult: 0, raw: 0 };
+    let rawTotal = 0;
+    let text = String(expr);
+    const rawRegex = /(['"])(.*?)(?:['"]|$)/g;
+    text = text.replace(rawRegex, (match, p1, p2) => {
+      let cleanNum = p2.replace(/,/g, '').replace(/[^0-9.-]/g, '');
+      if (cleanNum) {
+        rawTotal += parseFloat(cleanNum) || 0;
+      }
+      return '0';
+    });
+    return { mult: safeEval(text) || 0, raw: rawTotal };
+  }
+
 function safeEval(expr) {
   if (!expr) return 0;
   
@@ -347,7 +362,7 @@ function safeEval(expr) {
   }
 
   function calculateATK() {
-    const vals = atkInputs.map(input => input ? (safeEval(input.value) || 0) : 0);
+    const vals = atkInputs.map(input => input ? parseInputAndRaw(input.value) : { mult: 0, raw: 0 });
     const [
       base, equip, lead, p1, domain, items, links, active,
       ki, p2, hpBoost, saEffects, chargeCounts
@@ -355,76 +370,139 @@ function safeEval(expr) {
 
     let steps = [];
 
-    let atk = base + equip;
-    let baseStr = `Base: ${formatter.format(base)}`;
-    if (equip > 0) {
-      baseStr += ` + ${formatter.format(equip)} from Skill Orbs`;
+    let atk = base.mult + base.raw + equip.mult + equip.raw;
+    let baseStr = `Base: ${formatter.format(base.mult + base.raw)}`;
+    if ((equip.mult + equip.raw) > 0) {
+      baseStr += ` + ${formatter.format(equip.mult + equip.raw)} from Skill Orbs`;
     }
     steps.push(baseStr);
 
-    let nextAtk = Math.floor(atk * getMult(lead));
-    if (lead > 0) steps.push(`Lead (${lead}%): ${formatter.format(nextAtk)}`);
+    let nextAtk = Math.floor(atk * getMult(lead.mult)) + lead.raw;
+    if (lead.mult > 0 || lead.raw !== 0) {
+      let l = `Lead (${lead.mult}%`;
+      if (lead.raw !== 0) l += ` + ${formatter.format(lead.raw)}`;
+      l += `): ${formatter.format(nextAtk)}`;
+      steps.push(l);
+    }
     atk = nextAtk;
 
-    nextAtk = Math.floor(atk * getMult(p1));
-    if (p1 > 0) steps.push(`Phase 1 (${p1}%): ${formatter.format(nextAtk)}`);
+    nextAtk = Math.floor(atk * getMult(p1.mult)) + p1.raw;
+    if (p1.mult > 0 || p1.raw !== 0) {
+      let l = `Phase 1 (${p1.mult}%`;
+      if (p1.raw !== 0) l += ` + ${formatter.format(p1.raw)}`;
+      l += `): ${formatter.format(nextAtk)}`;
+      steps.push(l);
+    }
     atk = nextAtk;
 
-    nextAtk = Math.floor(atk * getMult(domain));
-    if (domain > 0) steps.push(`Domain (${domain}%): ${formatter.format(nextAtk)}`);
+    nextAtk = Math.floor(atk * getMult(domain.mult)) + domain.raw;
+    if (domain.mult > 0 || domain.raw !== 0) {
+      let l = `Domain (${domain.mult}%`;
+      if (domain.raw !== 0) l += ` + ${formatter.format(domain.raw)}`;
+      l += `): ${formatter.format(nextAtk)}`;
+      steps.push(l);
+    }
     atk = nextAtk;
 
-    nextAtk = Math.floor(atk * getMult(items));
-    if (items > 0) steps.push(`Items (${items}%): ${formatter.format(nextAtk)}`);
+    nextAtk = Math.floor(atk * getMult(items.mult)) + items.raw;
+    if (items.mult > 0 || items.raw !== 0) {
+      let l = `Items (${items.mult}%`;
+      if (items.raw !== 0) l += ` + ${formatter.format(items.raw)}`;
+      l += `): ${formatter.format(nextAtk)}`;
+      steps.push(l);
+    }
     atk = nextAtk;
 
-    nextAtk = Math.floor(atk * getMult(links));
-    if (links > 0) steps.push(`Links (${links}%): ${formatter.format(nextAtk)}`);
+    nextAtk = Math.floor(atk * getMult(links.mult)) + links.raw;
+    if (links.mult > 0 || links.raw !== 0) {
+      let l = `Links (${links.mult}%`;
+      if (links.raw !== 0) l += ` + ${formatter.format(links.raw)}`;
+      l += `): ${formatter.format(nextAtk)}`;
+      steps.push(l);
+    }
     atk = nextAtk;
 
-    nextAtk = Math.floor(atk * getMult(active));
-    if (active > 0) steps.push(`Active (${active}%): ${formatter.format(nextAtk)}`);
+    nextAtk = Math.floor(atk * getMult(active.mult)) + active.raw;
+    if (active.mult > 0 || active.raw !== 0) {
+      let l = `Active (${active.mult}%`;
+      if (active.raw !== 0) l += ` + ${formatter.format(active.raw)}`;
+      l += `): ${formatter.format(nextAtk)}`;
+      steps.push(l);
+    }
     atk = nextAtk;
 
     const isFinish = saType.value === 'finish';
 
-    const kiMult = ki > 0 ? (ki / 100) : 1;
-    nextAtk = Math.floor(atk * kiMult);
-    if (ki > 0) steps.push(`Ki Mult (${ki}%): ${formatter.format(nextAtk)}`);
+    const kiMultVal = ki.mult > 0 ? (ki.mult / 100) : 1;
+    nextAtk = Math.floor(atk * kiMultVal) + ki.raw;
+    if (ki.mult > 0 || ki.raw !== 0) {
+      let l = `Ki Mult (${ki.mult}%`;
+      if (ki.raw !== 0) l += ` + ${formatter.format(ki.raw)}`;
+      l += `): ${formatter.format(nextAtk)}`;
+      steps.push(l);
+    }
     atk = nextAtk;
 
-    nextAtk = Math.floor(atk * getMult(p2));
-    if (p2 > 0) steps.push(`Phase 2 (${p2}%): ${formatter.format(nextAtk)}`);
+    nextAtk = Math.floor(atk * getMult(p2.mult)) + p2.raw;
+    if (p2.mult > 0 || p2.raw !== 0) {
+      let l = `Phase 2 (${p2.mult}%`;
+      if (p2.raw !== 0) l += ` + ${formatter.format(p2.raw)}`;
+      l += `): ${formatter.format(nextAtk)}`;
+      steps.push(l);
+    }
     atk = nextAtk;
 
     let finalSaPercentage = 0;
     if (isFinish) {
-      const hiddenPotentialBoost = hpBoost * 5;
-      const baseMult = chargeCounts + hiddenPotentialBoost;
+      const hiddenPotentialBoost = hpBoost.mult * 5;
+      const baseMult = chargeCounts.mult + hiddenPotentialBoost;
       
       const saMult = baseMult > 0 ? (baseMult / 100) : 1;
-      nextAtk = Math.floor(atk * saMult);
-      if (baseMult > 0) steps.push(`Finish Mult (${formatter.format(baseMult)}%): ${formatter.format(nextAtk)}`);
+      const rawAdd = chargeCounts.raw + hpBoost.raw;
+      nextAtk = Math.floor(atk * saMult) + rawAdd;
+      if (baseMult > 0 || rawAdd !== 0) {
+        let l = `Finish Mult (${formatter.format(baseMult)}%`;
+        if (rawAdd !== 0) l += ` + ${formatter.format(rawAdd)}`;
+        l += `): ${formatter.format(nextAtk)}`;
+        steps.push(l);
+      }
       atk = nextAtk;
-      
 
-      if (saEffects > 0) {
-        const saEffectsMult = 1 + (saEffects / 100);
-        nextAtk = Math.floor(atk * saEffectsMult);
-        if (saEffects > 0) steps.push(`SA Effect (${formatter.format(saEffects)}%): ${formatter.format(nextAtk)}`);
+      if (saEffects.mult > 0 || saEffects.raw !== 0) {
+        const saEffectsMult = 1 + (saEffects.mult / 100);
+        nextAtk = Math.floor(atk * saEffectsMult) + saEffects.raw;
+        let l = `SA Effect (${formatter.format(saEffects.mult)}%`;
+        if (saEffects.raw !== 0) l += ` + ${formatter.format(saEffects.raw)}`;
+        l += `): ${formatter.format(nextAtk)}`;
+        steps.push(l);
         atk = nextAtk;
       }
     } else {
+      let manualSaRaw = 0;
+      let manualSaMult = 0;
+      if (saManual.checked) {
+        let parsed = parseInputAndRaw(saManualMult.value);
+        manualSaMult = parsed.mult;
+        manualSaRaw = parsed.raw;
+      }
       const baseSaMult = saManual.checked
-        ? (safeEval(saManualMult.value) || 0)
+        ? manualSaMult
         : getBaseSAMultiplier(saType.value, saRarity.value, saEza.checked);
       
-      const hiddenPotentialBoost = saManual.checked ? 0 : (hpBoost * 5);
-      const manualSaEffects = saManual.checked ? 0 : saEffects;
+      const hiddenPotentialBoost = saManual.checked ? 0 : (hpBoost.mult * 5);
+      const manualSaEffects = saManual.checked ? 0 : saEffects.mult;
+      
       finalSaPercentage = baseSaMult + hiddenPotentialBoost + manualSaEffects;
+      const rawSaAdd = (saManual.checked ? manualSaRaw : 0) + (saManual.checked ? 0 : (hpBoost.raw + saEffects.raw));
+
       const saMult = finalSaPercentage > 0 ? (finalSaPercentage / 100) : 1;
-      nextAtk = Math.floor(atk * saMult);
-      if (finalSaPercentage > 0) steps.push(`SA Mult (${formatter.format(finalSaPercentage)}%): ${formatter.format(nextAtk)}`);
+      nextAtk = Math.floor(atk * saMult) + rawSaAdd;
+      if (finalSaPercentage > 0 || rawSaAdd !== 0) {
+        let l = `SA Mult (${formatter.format(finalSaPercentage)}%`;
+        if (rawSaAdd !== 0) l += ` + ${formatter.format(rawSaAdd)}`;
+        l += `): ${formatter.format(nextAtk)}`;
+        steps.push(l);
+      }
       atk = nextAtk;
     }
 
@@ -479,48 +557,88 @@ function safeEval(expr) {
   }
 
   function calculateDEF() {
-    const vals = defInputs.map(input => safeEval(input.value) || 0);
+    const vals = defInputs.map(input => input ? parseInputAndRaw(input.value) : { mult: 0, raw: 0 });
     const [base, equip, lead, p1, domain, items, links, active, p2, sa] = vals;
 
     let steps = [];
 
-    let def = base + equip;
-    let baseStr = `Base: ${formatter.format(base)}`;
-    if (equip > 0) {
-      baseStr += ` + ${formatter.format(equip)} from Skill Orbs`;
+    let def = base.mult + base.raw + equip.mult + equip.raw;
+    let baseStr = `Base: ${formatter.format(base.mult + base.raw)}`;
+    if ((equip.mult + equip.raw) > 0) {
+      baseStr += ` + ${formatter.format(equip.mult + equip.raw)} from Skill Orbs`;
     }
     steps.push(baseStr);
 
-    let nextDef = Math.floor(def * getMult(lead));
-    if (lead > 0) steps.push(`Lead (${lead}%): ${formatter.format(nextDef)}`);
+    let nextDef = Math.floor(def * getMult(lead.mult)) + lead.raw;
+    if (lead.mult > 0 || lead.raw !== 0) {
+      let l = `Lead (${lead.mult}%`;
+      if (lead.raw !== 0) l += ` + ${formatter.format(lead.raw)}`;
+      l += `): ${formatter.format(nextDef)}`;
+      steps.push(l);
+    }
     def = nextDef;
 
-    nextDef = Math.floor(def * getMult(p1));
-    if (p1 > 0) steps.push(`Phase 1 (${p1}%): ${formatter.format(nextDef)}`);
+    nextDef = Math.floor(def * getMult(p1.mult)) + p1.raw;
+    if (p1.mult > 0 || p1.raw !== 0) {
+      let l = `Phase 1 (${p1.mult}%`;
+      if (p1.raw !== 0) l += ` + ${formatter.format(p1.raw)}`;
+      l += `): ${formatter.format(nextDef)}`;
+      steps.push(l);
+    }
     def = nextDef;
 
-    nextDef = Math.floor(def * getMult(domain));
-    if (domain > 0) steps.push(`Domain (${domain}%): ${formatter.format(nextDef)}`);
+    nextDef = Math.floor(def * getMult(domain.mult)) + domain.raw;
+    if (domain.mult > 0 || domain.raw !== 0) {
+      let l = `Domain (${domain.mult}%`;
+      if (domain.raw !== 0) l += ` + ${formatter.format(domain.raw)}`;
+      l += `): ${formatter.format(nextDef)}`;
+      steps.push(l);
+    }
     def = nextDef;
 
-    nextDef = Math.floor(def * getMult(items));
-    if (items > 0) steps.push(`Items (${items}%): ${formatter.format(nextDef)}`);
+    nextDef = Math.floor(def * getMult(items.mult)) + items.raw;
+    if (items.mult > 0 || items.raw !== 0) {
+      let l = `Items (${items.mult}%`;
+      if (items.raw !== 0) l += ` + ${formatter.format(items.raw)}`;
+      l += `): ${formatter.format(nextDef)}`;
+      steps.push(l);
+    }
     def = nextDef;
 
-    nextDef = Math.floor(def * getMult(links));
-    if (links > 0) steps.push(`Links (${links}%): ${formatter.format(nextDef)}`);
+    nextDef = Math.floor(def * getMult(links.mult)) + links.raw;
+    if (links.mult > 0 || links.raw !== 0) {
+      let l = `Links (${links.mult}%`;
+      if (links.raw !== 0) l += ` + ${formatter.format(links.raw)}`;
+      l += `): ${formatter.format(nextDef)}`;
+      steps.push(l);
+    }
     def = nextDef;
 
-    nextDef = Math.floor(def * getMult(active));
-    if (active > 0) steps.push(`Active (${active}%): ${formatter.format(nextDef)}`);
+    nextDef = Math.floor(def * getMult(active.mult)) + active.raw;
+    if (active.mult > 0 || active.raw !== 0) {
+      let l = `Active (${active.mult}%`;
+      if (active.raw !== 0) l += ` + ${formatter.format(active.raw)}`;
+      l += `): ${formatter.format(nextDef)}`;
+      steps.push(l);
+    }
     def = nextDef;
 
-    nextDef = Math.floor(def * getMult(p2));
-    if (p2 > 0) steps.push(`Phase 2 (${p2}%): ${formatter.format(nextDef)}`);
+    nextDef = Math.floor(def * getMult(p2.mult)) + p2.raw;
+    if (p2.mult > 0 || p2.raw !== 0) {
+      let l = `Phase 2 (${p2.mult}%`;
+      if (p2.raw !== 0) l += ` + ${formatter.format(p2.raw)}`;
+      l += `): ${formatter.format(nextDef)}`;
+      steps.push(l);
+    }
     def = nextDef;
 
-    nextDef = Math.floor(def * getMult(sa));
-    if (sa > 0) steps.push(`SA Effect (${sa}%): ${formatter.format(nextDef)}`);
+    nextDef = Math.floor(def * getMult(sa.mult)) + sa.raw;
+    if (sa.mult > 0 || sa.raw !== 0) {
+      let l = `SA Effect (${sa.mult}%`;
+      if (sa.raw !== 0) l += ` + ${formatter.format(sa.raw)}`;
+      l += `): ${formatter.format(nextDef)}`;
+      steps.push(l);
+    }
     def = nextDef;
 
     if (steps.length === 0) steps.push(baseStr);

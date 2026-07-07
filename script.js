@@ -217,7 +217,7 @@ document.addEventListener('DOMContentLoaded', () => {
         chargeGroup.style.opacity = '1';
         chargeGroup.style.pointerEvents = 'auto';
         if (chargeLabel) {
-          chargeLabel.textContent = isCounter ? 'Counter Mult' : 'Finish Multiplier';
+          chargeLabel.textContent = isCounter ? 'Counter Multiplier' : 'Finish Multiplier';
         }
         if (chargeTooltip) {
           chargeTooltip.textContent = isCounter 

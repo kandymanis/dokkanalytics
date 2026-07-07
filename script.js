@@ -133,6 +133,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function updateManualMode() {
     const isManual = saManual.checked;
     const isFinish = saType.value === 'finish';
+    const isCounter = saType.value === 'counter';
     const ezaLabel = saEza.closest('.custom-checkbox-label');
     const manualLabel = saManual.closest('.custom-checkbox-label');
     const hpBoostInput = document.getElementById('atk-hp-boost');
@@ -140,7 +141,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const saEffectsInput = document.getElementById('atk-sa-effects');
     const saEffectsGroup = saEffectsInput.closest('.input-group');
 
-    if (isManual && !isFinish) {
+    if (isManual && !isFinish && !isCounter) {
       saType.style.display = 'none';
       saManualMult.style.display = '';
       saTypeLabel.textContent = 'SA Multiplier (%)';
@@ -150,13 +151,18 @@ document.addEventListener('DOMContentLoaded', () => {
       saTypeLabel.textContent = 'SA Type';
     }
 
-    if (isFinish) {
+    if (isFinish || isCounter) {
       saEza.disabled = true;
       ezaLabel.classList.add('disabled');
       saManual.disabled = true;
       manualLabel.classList.add('disabled');
-      hpBoostInput.disabled = false;
-      hpBoostGroup.classList.remove('disabled-group');
+      if (isCounter) {
+        hpBoostInput.disabled = true;
+        hpBoostGroup.classList.add('disabled-group');
+      } else {
+        hpBoostInput.disabled = false;
+        hpBoostGroup.classList.remove('disabled-group');
+      }
       saEffectsInput.disabled = false;
       saEffectsGroup.classList.remove('disabled-group');
     } else {
@@ -195,17 +201,29 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     saType.add(new Option('Ultimate', 'ultimate'));
     saType.add(new Option('Finish', 'finish'));
+    saType.add(new Option('Counter', 'counter'));
   }
 
   function updateChargeCountVisibility() {
     const chargeGroup = document.getElementById('charge-count-group');
+    const chargeLabel = chargeGroup ? chargeGroup.querySelector('label') : null;
+    const chargeTooltip = chargeGroup ? chargeGroup.querySelector('.tooltip') : null;
     const isFinish = saType.value === 'finish';
+    const isCounter = saType.value === 'counter';
     if (chargeGroup) {
-      if (isFinish) {
+      if (isFinish || isCounter) {
         chargeGroup.style.position = 'relative';
         chargeGroup.style.visibility = 'visible';
         chargeGroup.style.opacity = '1';
         chargeGroup.style.pointerEvents = 'auto';
+        if (chargeLabel) {
+          chargeLabel.textContent = isCounter ? 'Counter Mult' : 'Finish Multiplier';
+        }
+        if (chargeTooltip) {
+          chargeTooltip.textContent = isCounter 
+            ? 'Base Multiplier for any Super Attack or Normal Attack Counter (e.g. Ferocious is 300%)' 
+            : 'Base Multiplier of the Finish/Active + Charge Counts for Standby';
+        }
       } else {
         chargeGroup.style.position = 'absolute';
         chargeGroup.style.visibility = 'hidden';
@@ -432,6 +450,7 @@ function safeEval(expr) {
     atk = nextAtk;
 
     const isFinish = saType.value === 'finish';
+    const isCounter = saType.value === 'counter';
 
     const kiMultVal = ki.mult > 0 ? (ki.mult / 100) : 1;
     nextAtk = Math.floor(atk * kiMultVal) + ki.raw;
@@ -453,15 +472,15 @@ function safeEval(expr) {
     atk = nextAtk;
 
     let finalSaPercentage = 0;
-    if (isFinish) {
-      const hiddenPotentialBoost = hpBoost.mult * 5;
+    if (isFinish || isCounter) {
+      const hiddenPotentialBoost = isCounter ? 0 : (hpBoost.mult * 5);
       const baseMult = chargeCounts.mult + hiddenPotentialBoost;
       
       const saMult = baseMult > 0 ? (baseMult / 100) : 1;
-      const rawAdd = chargeCounts.raw + hpBoost.raw;
+      const rawAdd = chargeCounts.raw + (isCounter ? 0 : hpBoost.raw);
       nextAtk = Math.floor(atk * saMult) + rawAdd;
       if (baseMult > 0 || rawAdd !== 0) {
-        let l = `Finish Mult (${formatter.format(baseMult)}%`;
+        let l = `${isCounter ? 'Counter Mult' : 'Finish Mult'} (${formatter.format(baseMult)}%`;
         if (rawAdd !== 0) l += ` + ${formatter.format(rawAdd)}`;
         l += `): ${formatter.format(nextAtk)}`;
         steps.push(l);
@@ -518,6 +537,7 @@ function safeEval(expr) {
       if (t === 'mega-colossal') baseType = "U. Super Attack";
       else if (t === 'ultimate') baseType = "EX Super Attack";
       else if (t === 'finish') baseType = "Finish Skill";
+      else if (t === 'counter') baseType = "Counter";
       else baseType = "Super Attack";
     }
     currentAtkBaseType = baseType;
@@ -730,6 +750,7 @@ function safeEval(expr) {
         if (t === 'mega-colossal') type = "U. Super Attack";
         else if (t === 'ultimate') type = "EX Super Attack";
         else if (t === 'finish') type = "Finish Skill";
+        else if (t === 'counter') type = "Counter";
       }
       atkSupers.push({ val: currentAtkVal, type: type });
       calculateATK();

@@ -1,5 +1,4 @@
 # Dokkanalytics
----
 Dokkanalytics is a website created to calculate unit stats (ATK & DEF) for the mobile game Dragon Ball Z: Dokkan Battle.
 
 The website also features a guide created by @razzdokkan on Twitter to familiarize yourself with how the calcing logic actually behaves, thought it's not necessary.

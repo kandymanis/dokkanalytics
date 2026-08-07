@@ -653,10 +653,12 @@ main > .nav-actions .nav-btns-left {
   }
 }
 
+/* visible state */
 .guide-visible {
   opacity: 1;
 }
 
+/* hidden state */
 .guide-hidden {
   display: none !important;
 }
@@ -677,4 +679,48 @@ main > .nav-actions .nav-btns-left {
   .sa-config-grid {
     min-height: 400px;
   }
+}
+
+.remove-sa-btn {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  opacity: 0.5;
+  cursor: pointer;
+  position: absolute;
+  left: calc(-2.5rem - 6px);
+  top: calc(50% - 2px);
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.remove-sa-btn.double-digit {
+  left: calc(-2.5rem - 10px);
+}
+
+.remove-sa-btn:hover {
+  color: var(--accent-atk);
+}
+
+.remove-sa-btn .lucide {
+  width: 14px !important;
+  height: 14px !important;
+}
+
+.modifier-text {
+  font-size: 0.75rem;
+  opacity: 0.5;
+  white-space: nowrap;
+}
+
+.modifier-checkboxes .custom-checkbox-label {
+  position: relative;
+  user-select: none;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }

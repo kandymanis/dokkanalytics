@@ -134,6 +134,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const isManual = saManual.checked;
     const isFinish = saType.value === 'finish';
     const isCounter = saType.value === 'counter';
+    const isNormal = saType.value === 'normal';
     const ezaLabel = saEza.closest('.custom-checkbox-label');
     const manualLabel = saManual.closest('.custom-checkbox-label');
     const hpBoostInput = document.getElementById('atk-hp-boost');
@@ -141,7 +142,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const saEffectsInput = document.getElementById('atk-sa-effects');
     const saEffectsGroup = saEffectsInput.closest('.input-group');
 
-    if (isManual && !isFinish && !isCounter) {
+    if (isManual && !isFinish && !isCounter && !isNormal) {
       saType.style.display = 'none';
       saManualMult.style.display = '';
       saTypeLabel.textContent = 'SA Multiplier (%)';
@@ -151,12 +152,12 @@ document.addEventListener('DOMContentLoaded', () => {
       saTypeLabel.textContent = 'SA Type';
     }
 
-    if (isFinish || isCounter) {
+    if (isFinish || isCounter || isNormal) {
       saEza.disabled = true;
       ezaLabel.classList.add('disabled');
       saManual.disabled = true;
       manualLabel.classList.add('disabled');
-      if (isCounter) {
+      if (isCounter || isNormal) {
         hpBoostInput.disabled = true;
         hpBoostGroup.classList.add('disabled-group');
       } else {
@@ -202,6 +203,7 @@ document.addEventListener('DOMContentLoaded', () => {
     saType.add(new Option('Ultimate', 'ultimate'));
     saType.add(new Option('Finish', 'finish'));
     saType.add(new Option('Counter', 'counter'));
+    saType.add(new Option('Normal', 'normal'));
   }
 
   function updateChargeCountVisibility() {
@@ -217,7 +219,7 @@ document.addEventListener('DOMContentLoaded', () => {
         chargeGroup.style.opacity = '1';
         chargeGroup.style.pointerEvents = 'auto';
         if (chargeLabel) {
-          chargeLabel.textContent = isCounter ? 'Counter Multiplier' : 'Finish Multiplier';
+          chargeLabel.textContent = isCounter ? 'Counter Mult' : 'Finish Multiplier';
         }
         if (chargeTooltip) {
           chargeTooltip.textContent = isCounter 
@@ -497,6 +499,7 @@ function safeEval(expr) {
         atk = nextAtk;
       }
     } else {
+      let isNormal = saType.value === 'normal';
       let manualSaRaw = 0;
       let manualSaMult = 0;
       if (saManual.checked) {
@@ -506,22 +509,47 @@ function safeEval(expr) {
       }
       const baseSaMult = saManual.checked
         ? manualSaMult
-        : getBaseSAMultiplier(saType.value, saRarity.value, saEza.checked);
+        : (isNormal ? 100 : getBaseSAMultiplier(saType.value, saRarity.value, saEza.checked));
       
-      const hiddenPotentialBoost = saManual.checked ? 0 : (hpBoost.mult * 5);
+      const hiddenPotentialBoost = (saManual.checked || isNormal) ? 0 : (hpBoost.mult * 5);
       const manualSaEffects = saManual.checked ? 0 : saEffects.mult;
       
       finalSaPercentage = baseSaMult + hiddenPotentialBoost + manualSaEffects;
-      const rawSaAdd = (saManual.checked ? manualSaRaw : 0) + (saManual.checked ? 0 : (hpBoost.raw + saEffects.raw));
+      const rawSaAdd = (saManual.checked ? manualSaRaw : 0) + ((saManual.checked || isNormal) ? 0 : hpBoost.raw) + (saManual.checked ? 0 : saEffects.raw);
 
       const saMult = finalSaPercentage > 0 ? (finalSaPercentage / 100) : 1;
       nextAtk = Math.floor(atk * saMult) + rawSaAdd;
-      if (finalSaPercentage > 0 || rawSaAdd !== 0) {
+      
+      if (isNormal) {
+        if (finalSaPercentage !== 100 || rawSaAdd !== 0) {
+          let l = `Normal Mult (${formatter.format(finalSaPercentage)}%`;
+          if (rawSaAdd !== 0) l += ` + ${formatter.format(rawSaAdd)}`;
+          l += `): ${formatter.format(nextAtk)}`;
+          steps.push(l);
+        }
+      } else if (finalSaPercentage > 0 || rawSaAdd !== 0) {
         let l = `SA Mult (${formatter.format(finalSaPercentage)}%`;
         if (rawSaAdd !== 0) l += ` + ${formatter.format(rawSaAdd)}`;
         l += `): ${formatter.format(nextAtk)}`;
         steps.push(l);
       }
+      atk = nextAtk;
+    }
+
+    const atkCrit = document.getElementById('atk-crit');
+    const atkTypeEff = document.getElementById('atk-type-eff');
+    const isCrit = atkCrit && atkCrit.checked;
+    const isTypeEff = atkTypeEff && atkTypeEff.checked;
+
+    if (isCrit) {
+      nextAtk = Math.floor(atk * 1.5);
+      let l = `Critical (1.5x): ${formatter.format(nextAtk)}`;
+      steps.push(l);
+      atk = nextAtk;
+    } else if (isTypeEff) {
+      nextAtk = Math.floor(atk * 1.25);
+      let l = `Type Effective (1.25x): ${formatter.format(nextAtk)}`;
+      steps.push(l);
       atk = nextAtk;
     }
 
@@ -538,6 +566,7 @@ function safeEval(expr) {
       else if (t === 'ultimate') baseType = "EX Super Attack";
       else if (t === 'finish') baseType = "Finish Skill";
       else if (t === 'counter') baseType = "Counter";
+      else if (t === 'normal') baseType = "Normal";
       else baseType = "Super Attack";
     }
     currentAtkBaseType = baseType;
@@ -553,14 +582,49 @@ function safeEval(expr) {
       atkSupers.forEach(s => counts[s.type] = (counts[s.type] || 0) + 1);
       
       let runningCounts = {};
-      listEl.innerHTML = atkSupers.map((s) => {
+      listEl.innerHTML = atkSupers.map((s, index) => {
         runningCounts[s.type] = (runningCounts[s.type] || 0) + 1;
         let ordinalHTML = "";
+        let isDoubleDigit = false;
         if (counts[s.type] > 1) {
-          ordinalHTML = getOrdinalHTML(runningCounts[s.type]);
+          const currentCount = runningCounts[s.type];
+          if (currentCount >= 10) isDoubleDigit = true;
+          ordinalHTML = getOrdinalHTML(currentCount);
         }
-        return `<div class="super-item"><span class="super-label"><span class="super-ordinal-container">${ordinalHTML}</span>${s.type}</span><span class="super-value atk-value">${formatter.format(s.val)}</span></div>`;
+        
+        let modText = "";
+        if (s.crit) {
+          modText = `<span class="modifier-text crit-text" style="color: var(--text-secondary);">CRIT</span>`;
+        } else if (s.typeEff) {
+          modText = `<span class="modifier-text type-eff-text" style="color: var(--text-secondary);">TYPE E.</span>`;
+        }
+        
+        return `<div class="super-item">
+          <span class="super-label">
+            <button class="remove-sa-btn${isDoubleDigit ? ' double-digit' : ''}" data-index="${index}" title="Remove SA">
+              <i data-lucide="x"></i>
+            </button>
+            <span class="super-ordinal-container">${ordinalHTML}</span>${s.type}
+          </span>
+          <span style="display: flex; align-items: center; justify-content: flex-end; position: relative;">
+            <span class="super-value atk-value">${formatter.format(s.val)}</span>
+            ${modText ? `<span style="position: absolute; left: 100%; margin-left: 0.5rem; display: flex; align-items: center;">${modText}</span>` : ''}
+          </span>
+        </div>`;
       }).join('');
+      
+      const removeBtns = listEl.querySelectorAll('.remove-sa-btn');
+      removeBtns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const idx = parseInt(e.currentTarget.getAttribute('data-index'));
+          atkSupers.splice(idx, 1);
+          calculateATK();
+        });
+      });
+      
+      if (typeof lucide !== 'undefined') {
+        lucide.createIcons({ root: listEl });
+      }
 
       let totalApt = atkSupers.reduce((a, b) => a + b.val, 0);
       const totalLabelEl = document.getElementById('atk-total-apt');
@@ -677,14 +741,37 @@ function safeEval(expr) {
       defSupers.forEach(s => counts[s.type] = (counts[s.type] || 0) + 1);
       
       let runningCounts = {};
-      listEl.innerHTML = defSupers.map((s) => {
+      listEl.innerHTML = defSupers.map((s, index) => {
         runningCounts[s.type] = (runningCounts[s.type] || 0) + 1;
         let ordinalHTML = "";
+        let isDoubleDigit = false;
         if (counts[s.type] > 1) {
-          ordinalHTML = getOrdinalHTML(runningCounts[s.type]);
+          const currentCount = runningCounts[s.type];
+          if (currentCount >= 10) isDoubleDigit = true;
+          ordinalHTML = getOrdinalHTML(currentCount);
         }
-        return `<div class="super-item"><span class="super-label"><span class="super-ordinal-container">${ordinalHTML}</span>${s.type}</span><span class="super-value def-value">${formatter.format(s.val)}</span></div>`;
+        return `<div class="super-item">
+          <span class="super-label">
+            <button class="remove-sa-btn${isDoubleDigit ? ' double-digit' : ''}" data-index="${index}" title="Remove SA">
+              <i data-lucide="x"></i>
+            </button>
+            <span class="super-ordinal-container">${ordinalHTML}</span>${s.type}
+          </span>
+          <span class="super-value def-value">${formatter.format(s.val)}</span>
+        </div>`;
       }).join('');
+      
+      const removeBtns = listEl.querySelectorAll('.remove-sa-btn');
+      removeBtns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const idx = parseInt(e.currentTarget.getAttribute('data-index'));
+          defSupers.splice(idx, 1);
+          calculateDEF();
+        });
+      });
+      if (typeof lucide !== 'undefined') {
+        lucide.createIcons({ root: listEl });
+      }
 
       let totalDef = defSupers[defSupers.length - 1].val;
       const totalLabelEl = document.getElementById('def-total-label');
@@ -705,6 +792,11 @@ function safeEval(expr) {
     input.addEventListener('input', calculateATK);
     if (input.tagName === 'SELECT') input.addEventListener('change', calculateATK);
   });
+
+  const atkCrit = document.getElementById('atk-crit');
+  const atkTypeEff = document.getElementById('atk-type-eff');
+  if (atkCrit) atkCrit.addEventListener('change', calculateATK);
+  if (atkTypeEff) atkTypeEff.addEventListener('change', calculateATK);
 
   defInputs.forEach(input => {
     if (!input) return;
@@ -751,8 +843,19 @@ function safeEval(expr) {
         else if (t === 'ultimate') type = "EX Super Attack";
         else if (t === 'finish') type = "Finish Skill";
         else if (t === 'counter') type = "Counter";
+        else if (t === 'normal') type = "Normal";
       }
-      atkSupers.push({ val: currentAtkVal, type: type });
+      const atkCrit = document.getElementById('atk-crit');
+      const atkTypeEff = document.getElementById('atk-type-eff');
+      const isCrit = atkCrit && atkCrit.checked;
+      const isTypeEff = atkTypeEff && atkTypeEff.checked;
+      
+      atkSupers.push({ 
+        val: currentAtkVal, 
+        type: type, 
+        crit: isCrit, 
+        typeEff: !isCrit && isTypeEff 
+      });
       calculateATK();
     });
   }
@@ -804,6 +907,12 @@ function safeEval(expr) {
       saEza.checked = false;
       saManual.checked = false;
       saManualMult.value = '';
+      
+      const atkCrit = document.getElementById('atk-crit');
+      const atkTypeEff = document.getElementById('atk-type-eff');
+      if (atkCrit) atkCrit.checked = false;
+      if (atkTypeEff) atkTypeEff.checked = false;
+      
       updateManualMode();
       updateChargeCountVisibility();
 

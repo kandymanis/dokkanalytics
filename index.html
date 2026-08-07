@@ -152,6 +152,7 @@
                 <option value="ultimate">Ultimate</option>
                 <option value="finish">Finish</option>
                 <option value="counter">Counter</option>
+                <option value="normal">Normal</option>
               </select>
               <input type="text" inputmode="decimal" id="sa-manual-mult" style="display: none;">
             </div>
@@ -193,7 +194,21 @@
             </div>
           </h3>
           <div class="result-value" id="atk-result">0</div>
-          <div class="calculation-steps" id="atk-steps" style="margin-top: 40px;"></div>
+          
+          <div class="modifier-checkboxes" style="display: flex; justify-content: center; gap: 1rem; margin-top: calc(1rem + 5px);">
+            <label class="custom-checkbox-label" style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+              <input type="checkbox" id="atk-crit" class="custom-checkbox">
+              <span class="checkmark"></span>
+              Critical
+            </label>
+            <label class="custom-checkbox-label" style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+              <input type="checkbox" id="atk-type-eff" class="custom-checkbox">
+              <span class="checkmark"></span>
+              Type Eff
+            </label>
+          </div>
+
+          <div class="calculation-steps" id="atk-steps" style="margin-top: 30px;"></div>
         </div>
         <div id="atk-supers-container" class="result-section" style="display: none; position: relative; margin-top: 2rem;">
           <button id="atk-supers-reset" class="copy-btn" style="position: absolute; top: 1.5rem; right: 1.5rem;" title="Reset SA List" aria-label="Reset SA List">
@@ -270,7 +285,8 @@
                 <option value="Super Attack" selected>Super Attack</option>
                 <option value="EX Super Attack">EX Super Attack</option>
                 <option value="Finish Skill">Finish Skill</option>
-                <option value="Counter">Counter</option>
+                <option value="Counters">Counter</option>
+                <option value="Normal">Normal</option>
               </select>
             </div>
           </div>
@@ -291,7 +307,7 @@
             </div>
           </h3>
           <div class="result-value" id="def-result">0</div>
-          <div class="calculation-steps" id="def-steps" style="margin-top: 40px;"></div>
+          <div class="calculation-steps" id="def-steps" style="margin-top: 30px;"></div>
         </div>
         <div id="def-supers-container" class="result-section" style="display: none; position: relative; margin-top: 2rem;">
           <button id="def-supers-reset" class="copy-btn" style="position: absolute; top: 1.5rem; right: 1.5rem;" title="Reset SA List" aria-label="Reset SA List">

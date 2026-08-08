@@ -843,7 +843,7 @@ function safeEval(expr) {
         else if (t === 'ultimate') type = "EX Super Attack";
         else if (t === 'finish') type = "Finish Skill";
         else if (t === 'counter') type = "Counter";
-        else if (t === 'normal') type = "Normal";
+        else if (t === 'normal') type = "Normal Attack";
       }
       const atkCrit = document.getElementById('atk-crit');
       const atkTypeEff = document.getElementById('atk-type-eff');

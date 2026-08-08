@@ -566,7 +566,7 @@ function safeEval(expr) {
       else if (t === 'ultimate') baseType = "EX Super Attack";
       else if (t === 'finish') baseType = "Finish Skill";
       else if (t === 'counter') baseType = "Counter";
-      else if (t === 'normal') baseType = "Normal";
+      else if (t === 'normal') baseType = "Normal Attack";
       else baseType = "Super Attack";
     }
     currentAtkBaseType = baseType;
@@ -946,7 +946,7 @@ function safeEval(expr) {
 	  let centerX = rect.left + rect.width / 2;
 	  let centerY = rect.top + rect.height / 2;
 
-	  if (window.innerWidth > 841) {
+	  if (window.innerWidth >= 841) {
 		const parentRect = document.querySelector('.nav-btns-left').getBoundingClientRect();
 		centerX = (centerX - parentRect.left) + 17; 
 		centerY = (centerY - parentRect.top) + 4;

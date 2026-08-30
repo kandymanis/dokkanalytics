@@ -226,7 +226,7 @@
           <div class="guide-content">DEF stats are calculated by multiplying each bracket in the following order:
 
 <div class="calc-block">(Base DEF) * (Leader Skill) * (Phase 1 Passives) * (Domain) * (Items) * (Links) * (Active Skills) * (Phase 2 Passive) * (Super Attack Effects)</div>
-For an example, you are running a dual +220% lead on a unit, then the unit is gaining +440% of it's base stat, a.k.a. multiplying by 5.4.
+For an example, you are running a dual +220% lead on a unit, then the unit is gaining +440% of its base stat, a.k.a. multiplying by 5.4.
 
 It is recommended to pull up the unit's info and follow this example for first time calcs: Take TEQ LR Wrathful Broly with a base rainbow DEF of 13,169.
 <div class="calc-block">13169 + 440% * 13169 = 13169 * 5.4 = <b>71,112.6</b></div>
@@ -259,7 +259,7 @@ For the next turn, we're going to use Wrathful Broly's active skill, which grant
 We now need to re-calculate, but in this case, it's quick since we only need to start after link skills, which we already did:
 <div class="calc-block">431791 * 1.6 = 690865.6
 690865 * 2.5 = 1727162.5
-392538 * 1.4 = <b>2,418,026.8</b></div>rounded down to <b>2,418,026</b>, which is our new DEF stat at the start of this turn.
+1727162 * 1.4 = <b>2,418,026.8</b></div>rounded down to <b>2,418,026</b>, which is our new DEF stat at the start of this turn.
 
 Say Broly now does 3 attacks and it's a triple super this turn, gaining +150% in mid-battle/phase 2 and +60% in SA effect buffs.
 Since stats update dynamically, we need to update these multipliers from 2.5 and 1.4 to 4 and 2 respectively:
@@ -326,7 +326,7 @@ The following 24-Ki would be:
 
 <b>Note:</b>
 • Treat EX Supers as 18/24-Ki supers.
-• For counters, tremendous power is a 300% multiplier and ferocious power is 400%.</div>
+• For counters, tremendous power is a 200% multiplier and ferocious power is 300%.</div>
         </div>
       </div>
 
@@ -426,7 +426,7 @@ Jiren's DEF when receiving an attack is:
 • Vs PHY Cymbal: (2900000 * (1 - 0.5) * 1.15 * 1.015 - 653624) = 1,038,988.5</div>
 
 <b>83% Damage Reduction:</b>
-<div class="calc-block">• Vs TEQ Demon King Piccolo: (3045000 * (1 - 0.83) * 1.25 * 1.015 - 3144.4375
+<div class="calc-block">• Vs TEQ Demon King Piccolo: (3045000 * (1 - 0.83) * 1.25 * 1.015 - 653624) = 3,144.4375
 • Vs STR Tambourine: (2950000 * (1 - 0.83) * 0.85 * 1.015 - 653624) * 0.5 = -110,477.4375
 • Vs PHY Cymbal: (2900000 * (1 - 0.83) * 1.15 * 1.015 - 653624) = -78169.75</div>
 
@@ -442,16 +442,16 @@ Some enemies in modern Dokkan can crit you. This multiplies their ATK by 1.5 tem
 However, "Guards all attacks" effects can overwrite this to set your type multiplier to 0.8 and guard multiplier to 0.5.
 Use DokkanDB to find the DEF cut on enemies' crits; for example, our AGL Jiren with 50% damage reduction against STR Gohan from the "Next-Generation Saiyans Edition Stage 5" Supreme Magnificent Battle:
 
-<div class="calc-block">(900000 * (1 - 0.5) * 1.5 * 0.85 * 1.015 - (0.3 * 653524)) = <b>386,299.05</b></div>
+<div class="calc-block">(900000 * (1 - 0.5) * 1.5 * 0.85 * 1.015 - (0.3 * 653624)) = <b>386,269.05</b></div>
 
 If we pretend Jiren had "Guards all attacks":
-<div class="calc-block">(900000 * (1 - 0.5) * 1.5 * 0.65 * 1.015 - (0.3 * 653524)) * 0.5 = <b>124,637.025</b></div>
+<div class="calc-block">(900000 * (1 - 0.5) * 1.5 * 0.65 * 1.015 - (0.3 * 653624)) * 0.5 = <b>124,622.025</b></div>
 
 If we pretend Jiren was naturally type neutral with "Guards all attacks":
-<div class="calc-block">(900000 * (1 - 0.5) * 1.5 * 0.8 * 1.015 - (0.3 * 653524)) * 0.5 = <b>176,021.4</b></div>
+<div class="calc-block">(900000 * (1 - 0.5) * 1.5 * 0.8 * 1.015 - (0.3 * 653624)) * 0.5 = <b>176,006.4</b></div>
 
 <b>Note:</b>
-• Damage calculation for your own units doing crits function completely different from enemy crits.</div>
+• Damage calculation for your own units doing crits functions completely differently from enemy crits.</div>
         </div>
       </div>
 

@@ -293,9 +293,6 @@ main > .nav-actions .nav-btns-left {
   font-weight: 800;
   letter-spacing: 0.5px;
   font-size: 0.91rem;
-}
-
-#atk-supers-list, #def-supers-list {
   display: grid;
   grid-template-columns: auto auto;
   gap: 0.5rem 2.5rem;
@@ -598,11 +595,6 @@ main > .nav-actions .nav-btns-left {
   margin-top: 1rem; 
   position: relative;
   min-height: 250px;
-}
-
-#def-section .sa-config-grid {
-  min-height: auto;
-  padding-top: 1.5rem;
 }
 
 #def-section .sa-config-grid {

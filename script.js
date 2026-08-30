@@ -53,8 +53,19 @@ document.addEventListener('DOMContentLoaded', () => {
         <span style="color: #66ff66;">TEQ: ATK +3240 / DEF +3000</span><br>
         <span style="color: #cc66ff;">INT: ATK +3000 / DEF +3000</span><br>
         <span style="color: #ff4d4d;">STR: ATK +3240 / DEF +2760</span><br>
-        <span style="color: #ffa64d;">PHY: ATK +3000 / DEF +2760</span>`;
+        <span style="color: #ffa64d;">PHY: ATK +3000 / DEF +2760</span><br>`;
     }
+
+    const saBoosts = {
+      55: 6,
+      69: 7,
+      79: 8,
+      90: 9,
+      100: 10
+    };
+
+    html += `<br><strong>SA Boost: ${saBoosts[val]}</strong><br>
+      <span style="color: var(--text-secondary); font-size: 0.8rem;">+5 optional from the top right HiPo selection</span>`;
 
     hipoDisplay.innerHTML = html;
   }
@@ -146,10 +157,12 @@ document.addEventListener('DOMContentLoaded', () => {
       saType.style.display = 'none';
       saManualMult.style.display = '';
       saTypeLabel.textContent = 'SA Multiplier (%)';
+      saTypeLabel.setAttribute('for', 'sa-manual-mult');
     } else {
       saType.style.display = '';
       saManualMult.style.display = 'none';
       saTypeLabel.textContent = 'SA Type';
+      saTypeLabel.setAttribute('for', 'sa-type');
     }
 
     if (isFinish || isCounter || isNormal) {
@@ -291,20 +304,21 @@ function safeEval(expr) {
   if (!expr) return 0;
   
   let sanitized = String(expr)
+    .replace(/%/g, '')
     .replace(/[xX×]/g, '*')
     .replace(/[÷]/g, '/')
-    .replace(/[^0-9+\-*/%^().\s]/g, '')
+    .replace(/[^0-9+\-*/^().\s]/g, '')
     .trim();
 
   if (!sanitized) return 0;
 
-  while (sanitized.length > 0 && /[+\-*/%^.()]$/.test(sanitized)) {
+  while (sanitized.length > 0 && /[+\-*/^.()]$/.test(sanitized)) {
     sanitized = sanitized.slice(0, -1).trim();
   }
 
   try {
     const tokens = [];
-    const re = /(\d+\.?\d*|\*\*|[+\-*/%^()])/g;
+    const re = /(\d+(?:\.\d*)?|\.\d+|\*\*|[+\-*/^()])/g;
     let m;
     while ((m = re.exec(sanitized)) !== null) tokens.push(m[1]);
     
@@ -322,12 +336,11 @@ function safeEval(expr) {
 
     function parseTerm() {
       let left = parsePower();
-      while (pos < tokens.length && (tokens[pos] === '*' || tokens[pos] === '/' || tokens[pos] === '%')) {
+      while (pos < tokens.length && (tokens[pos] === '*' || tokens[pos] === '/')) {
         const op = tokens[pos++];
         const right = parsePower();
         if (op === '*') left *= right;
         else if (op === '/') left /= right;
-        else if (op === '%') left %= right;
       }
       return left;
     }
@@ -343,10 +356,15 @@ function safeEval(expr) {
     }
 
     function parseFactor() {
-      if (tokens[pos] === '(') {
+      if (pos < tokens.length && (tokens[pos] === '+' || tokens[pos] === '-')) {
+        const op = tokens[pos++];
+        const val = parseFactor();
+        return op === '-' ? -val : val;
+      }
+      if (pos < tokens.length && tokens[pos] === '(') {
         pos++;
         const val = parseExpr();
-        if (tokens[pos] === ')') pos++;
+        if (pos < tokens.length && tokens[pos] === ')') pos++;
         return val;
       }
       const num = parseFloat(tokens[pos++]);
@@ -479,7 +497,7 @@ function safeEval(expr) {
       const baseMult = chargeCounts.mult + hiddenPotentialBoost;
       
       const saMult = baseMult > 0 ? (baseMult / 100) : 1;
-      const rawAdd = chargeCounts.raw + (isCounter ? 0 : hpBoost.raw);
+      const rawAdd = chargeCounts.raw;
       nextAtk = Math.floor(atk * saMult) + rawAdd;
       if (baseMult > 0 || rawAdd !== 0) {
         let l = `${isCounter ? 'Counter Mult' : 'Finish Mult'} (${formatter.format(baseMult)}%`;
@@ -515,7 +533,7 @@ function safeEval(expr) {
       const manualSaEffects = saManual.checked ? 0 : saEffects.mult;
       
       finalSaPercentage = baseSaMult + hiddenPotentialBoost + manualSaEffects;
-      const rawSaAdd = (saManual.checked ? manualSaRaw : 0) + ((saManual.checked || isNormal) ? 0 : hpBoost.raw) + (saManual.checked ? 0 : saEffects.raw);
+      const rawSaAdd = (saManual.checked ? manualSaRaw : 0) + (saManual.checked ? 0 : saEffects.raw);
 
       const saMult = finalSaPercentage > 0 ? (finalSaPercentage / 100) : 1;
       nextAtk = Math.floor(atk * saMult) + rawSaAdd;
@@ -795,8 +813,30 @@ function safeEval(expr) {
 
   const atkCrit = document.getElementById('atk-crit');
   const atkTypeEff = document.getElementById('atk-type-eff');
-  if (atkCrit) atkCrit.addEventListener('change', calculateATK);
-  if (atkTypeEff) atkTypeEff.addEventListener('change', calculateATK);
+
+  function updateCritTypeEffState() {
+    if (!atkCrit || !atkTypeEff) return;
+    const typeEffLabel = atkTypeEff.closest('.custom-checkbox-label');
+    if (atkCrit.checked) {
+      atkTypeEff.checked = false;
+      atkTypeEff.disabled = true;
+      if (typeEffLabel) typeEffLabel.classList.add('disabled');
+    } else {
+      atkTypeEff.disabled = false;
+      if (typeEffLabel) typeEffLabel.classList.remove('disabled');
+    }
+  }
+
+  if (atkCrit) {
+    atkCrit.addEventListener('change', () => {
+      updateCritTypeEffState();
+      calculateATK();
+    });
+  }
+  if (atkTypeEff) {
+    atkTypeEff.addEventListener('change', calculateATK);
+  }
+  updateCritTypeEffState();
 
   defInputs.forEach(input => {
     if (!input) return;
@@ -912,6 +952,7 @@ function safeEval(expr) {
       const atkTypeEff = document.getElementById('atk-type-eff');
       if (atkCrit) atkCrit.checked = false;
       if (atkTypeEff) atkTypeEff.checked = false;
+      updateCritTypeEffState();
       
       updateManualMode();
       updateChargeCountVisibility();
@@ -946,7 +987,7 @@ function safeEval(expr) {
 	  let centerX = rect.left + rect.width / 2;
 	  let centerY = rect.top + rect.height / 2;
 
-	  if (window.innerWidth >= 841) {
+	  if (window.innerWidth > 840) {
 		const parentRect = document.querySelector('.nav-btns-left').getBoundingClientRect();
 		centerX = (centerX - parentRect.left) + 17; 
 		centerY = (centerY - parentRect.top) + 4;
@@ -979,8 +1020,24 @@ function safeEval(expr) {
 	  });
 	}
 
+	function getGuideDismissed() {
+	  try {
+	    return localStorage.getItem(GUIDE_KEY) === "true";
+	  } catch (e) {
+	    return false;
+	  }
+	}
+
+	function setGuideDismissed() {
+	  try {
+	    localStorage.setItem(GUIDE_KEY, "true");
+	  } catch (e) {
+	    // Ignore storage errors in private browsing
+	  }
+	}
+
 	function initGuidePopup() {
-	  const dismissed = localStorage.getItem(GUIDE_KEY) === "true";
+	  const dismissed = getGuideDismissed();
 
 	  if (dismissed) {
 		highlight?.classList.add("guide-hidden");
@@ -992,14 +1049,14 @@ function safeEval(expr) {
 	}
 
 	pointer?.addEventListener("click", () => {
-	  localStorage.setItem(GUIDE_KEY, "true");
+	  setGuideDismissed();
 
 	  highlight?.classList.add("guide-hidden");
 	  pointer?.classList.add("guide-hidden");
 	});
 
 	guideBtn?.addEventListener("click", () => {
-	  localStorage.setItem(GUIDE_KEY, "true");
+	  setGuideDismissed();
 
 	  highlight?.classList.add("guide-hidden");
 	  pointer?.classList.add("guide-hidden");

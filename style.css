@@ -304,6 +304,11 @@ main > .nav-actions .nav-btns-left {
   display: contents;
 }
 
+.super-item.start-of-turn > .super-label,
+.super-item.start-of-turn > .super-value {
+  margin-top: 7px;
+}
+
 .super-ordinal-container {
   position: absolute;
   left: -0.5rem;

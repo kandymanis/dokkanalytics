@@ -768,7 +768,8 @@ function safeEval(expr) {
           if (currentCount >= 10) isDoubleDigit = true;
           ordinalHTML = getOrdinalHTML(currentCount);
         }
-        return `<div class="super-item">
+        const isSot = s.type === "Start of Turn" && index > 0;
+        return `<div class="super-item${isSot ? ' start-of-turn' : ''}">
           <span class="super-label">
             <button class="remove-sa-btn${isDoubleDigit ? ' double-digit' : ''}" data-index="${index}" title="Remove SA">
               <i data-lucide="x"></i>

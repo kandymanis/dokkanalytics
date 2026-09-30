@@ -1,0 +1,343 @@
+# Dokkanalytics Stat Calculator API — Agent Guide
+# Plain-text API documentation and mechanics reference for AI agents and LLMs.
+
+SERVICE: Dokkanalytics Stat Calculator API
+BASE URL: https://dokkanalytics-api.workers.dev
+GITHUB PAGES URL: https://<your-username>.github.io/<repo>/
+CONTENT-TYPE: application/json
+CORS: Allowed (*)
+
+================================================================================
+1. ENDPOINTS
+================================================================================
+
+1. POST /api/calculate/atk
+Calculates final Attack (ATK) stat. Handles normal attacks, Super Attacks, Standby Finish Skills, and Counterattacks.
+Returns finalValue, formattedValue, step breakdown, and automatic 3-way breakdown (raw, typeEffective, crit).
+
+2. POST /api/calculate/def
+Calculates final Defense (DEF) stat. Handles start-of-turn DEF, slot buffs, after-hit buffs, and post-super defensive raises.
+
+3. GET /api/calculate?type=<atk|def>&base=<number>&lead=<number>&...
+Quick GET calculation via URL query parameters.
+
+4. GET /llms.txt
+This plain-text guide for AI agents and LLMs.
+
+5. GET /openapi.json
+Standard OpenAPI 3.0 specification for tool/function calling.
+
+================================================================================
+2. INPUT PARAMETERS (JSON)
+================================================================================
+
+[SHARED FIELDS: ATK & DEF]
+- base (number, REQUIRED): Base character ATK or DEF at max level for chosen HiPo (55% or 100%).
+- equip (number): Flat stat from Bronze/Silver/Gold Skill Orbs (e.g. 500, 800). Default: 0.
+- lead (number): Total dual leader skill percentage. Examples:
+  * Dual 200% lead = 400
+  * Dual 220% lead = 440
+  * Dual 170% lead = 340
+- phase1 (number | string): Start of Turn (SoT) buffs active BEFORE attacking.
+  Includes base SoT passive, slot 1/2/3 SoT buffs, HP threshold buffs, and ally support on rotation.
+  All Phase 1 buffs are additive together. Accepts math strings like "150+50+30". Default: 0.
+- domain (number): Domain / Territory buff percentage (e.g. 20, 30). Default: 0.
+- items (number): Support item or support memory percentage (e.g. 20, 35). Default: 0.
+- links (number | string): Total percentage from all activated link skills. Accepts math strings like "15+20". Default: 0.
+- active (number): Active skill buff percentage active on the turn (e.g. 20). Default: 0.
+- phase2 (number | string): Multiplicative mid-battle buffs that trigger on attack or during combat.
+  Triggers include: "when performing a Super Attack", "when attacking", "after receiving an attack", or "per attack performed in the same turn".
+  IMPORTANT: Dokkan multiplies Phase 2 with Phase 1. Default: 0.
+
+[ATK-ONLY FIELDS]
+- ki (number): Ki multiplier percentage at launched Ki.
+  * 24 Ki Ultra Super LR = 200
+  * Standard 12 Ki TUR = 150 (range 140-160)
+  * 12 Ki LR = 150
+  Default: 100.
+- saType (string): Attack type:
+  * "immense": Modern DFE and summonable TURs
+  * "mega-colossal": LR 18-24 Ki Ultra Super
+  * "colossal": LR 12 Ki Super
+  * "supreme": Standard / F2P TURs
+  * "ultimate": Active skill damage
+  * "finish": Standby Finish Skills
+  * "counter": Counterattacks
+  * "normal": Normal attack
+  Default: "immense".
+- saRarity (string): "tur" | "lr". Default: "tur".
+- isEza (boolean): true if unit has Extreme Z-Awakened (raises base SA multiplier). Default: false.
+- hpBoost (number): Hidden Potential SA boost level (+5% multiplier per point).
+  * 100% Rainbow = 15 (+75%)
+  * 55% = 6 (+30%)
+  NOTE: Ignored for Counterattacks. Default: 0.
+- saEffects (number): Total ATK% raised from Super Attack effects ("raises ATK").
+  * In normal Super Attacks: Additive with SA multiplier.
+  * In Finish Skills and Counters: SEPARATELY MULTIPLICATIVE! (See special sections below).
+  Default: 0.
+- finishMult (number | string, alias: chargeCounts): Base multiplier + charge count boost for Finish Skills.
+- counterMult (number | string, alias: chargeCounts): Multiplier for Counterattacks (e.g. 300 for Ferocious, 200 for Tremendous).
+- crit (boolean): Post "crit": true to set finalValue to critical hit (1.5x). Default: false.
+- typeEff (boolean): Post "typeEff": true to set finalValue to type effectiveness (1.25x). Default: false.
+
+[DEF-ONLY FIELDS]
+- sa (number): Total DEF% raised from Super Attack effects ("raises DEF").
+  * "raises DEF" = 30 per super
+  * "greatly raises DEF" = 50 per super
+  * "massively raises DEF" = 100 per super
+  Sum together if launching multiple supers (e.g. 2 supers with "raises DEF" = 60). Default: 0.
+
+================================================================================
+3. COUNTER ATTACKS (saType: "counter")
+================================================================================
+
+How Counterattacks work in Dokkan:
+Units like Super Vegito, PHY Vegito Blue, and TEQ SSJ4 Gogeta counter incoming enemy attacks (normal attacks or super attacks).
+
+KEY RULES FOR COUNTERS:
+1. Multiplier (counterMult):
+   - "Tremendous power" counter: 200% (enter 200)
+   - "Ferocious power" counter: 300% (enter 300)
+   - "Enormous power" counter: 150% (enter 150)
+2. HiPo SA Boost is IGNORED:
+   - Counters DO NOT receive the +5% per HiPo SA level bonus. The API automatically sets HiPo boost to 0 for counters.
+3. SA Effects are SEPARATELY MULTIPLICATIVE (Separate Bracket):
+   - For standard Super Attacks, SA effect is additive with the SA multiplier.
+   - FOR COUNTERS, SA effects act as a COMPLETELY SEPARATE MULTIPLICATION BRACKET on top of the counter damage:
+     Counter ATK = Pre-SA ATK x (Counter Mult / 100) x (1 + SA Effects / 100)
+   - Example: If the unit launched a Super Attack earlier that turn which "greatly raises ATK for 1 turn" (50%), pass saEffects: 50. The entire counter is multiplied by 1.5x!
+
+AGENT INSTRUCTION FOR TOTAL TURN DAMAGE / ACTION ECONOMY:
+- Counters trigger PER ENEMY ATTACK targeted at that unit.
+- When an AI agent calculates counter damage, the agent SHOULD check or look up the number of enemy actions in that event slot:
+  * In difficult endgame events (Red Zone, Supreme Magnificent Battle / Blue Zone, Divine Wrath), bosses typically attack 6 to 10+ times per turn total.
+  * A single slot usually faces between 3 and 7 attacks.
+- Calculation rule for agents:
+  1. Call /api/calculate/atk with saType: "counter" to get the damage of ONE counter.
+  2. Multiply single counter damage by the number of enemy attacks targeting the unit:
+     Total Counter ATK = Single Counter ATK x Number of Enemy Actions.
+  3. Total Turn Output = Super Attack ATK + (Single Counter ATK x Enemy Actions).
+
+Example Counter Request:
+POST /api/calculate/atk
+{
+  "base": 18000,
+  "lead": 400,
+  "phase1": 150,
+  "links": 35,
+  "ki": 150,
+  "phase2": 50,
+  "saType": "counter",
+  "counterMult": 300,
+  "saEffects": 50,
+  "crit": true
+}
+
+================================================================================
+4. STANDBY FINISH SKILLS (saType: "finish")
+================================================================================
+
+How Finish Skills work in Dokkan:
+Units enter a Standby state and accumulate "Charge Counts" (from collecting Ki spheres, taking hits, or passing turns), then unleash a devastating Finish Skill (e.g. 8th Anni Buu Duo, GT Duo, Dragon Fist SSJ3 Goku).
+
+KEY RULES FOR FINISH SKILLS:
+1. Multiplier (finishMult):
+   - Multiplier formula: Base Finish Multiplier + (Charge Count x Boost Per Charge).
+   - Example (8th Anni PHY Buu Duo): Base 750% + 20% per charge count up to 100 charges.
+     At 100 charges: 750 + (100 x 20) = 2750%. Pass finishMult: "750+2000" or 2750.
+   - Example (Dragon Fist SSJ3 Goku): Base 1000% + charge count boosts.
+2. HiPo SA Boost APPLIES:
+   - Unlike counters, Finish Skills DO receive Hidden Potential SA Boost (+5% per level, up to +75% for level 15 rainbow).
+3. SA Effects are SEPARATELY MULTIPLICATIVE (Separate Bracket):
+   - Any ATK raises accumulated from Super Attacks in prior turns or standby support are MULTIPLIED into the Finish Skill as a distinct bracket:
+     Finish ATK = Pre-SA ATK x ((Base Finish Mult + HiPo Boost) / 100) x (1 + SA Effects / 100)
+   - Example: If the unit has 4 stacks of "raises ATK by 50%" (200%), pass saEffects: 200. The Finish Skill multiplies that full 3.0x bracket!
+
+Example Finish Skill Request:
+POST /api/calculate/atk
+{
+  "base": 21000,
+  "equip": 600,
+  "lead": 400,
+  "phase1": 150,
+  "links": 40,
+  "ki": 200,
+  "phase2": 100,
+  "saType": "finish",
+  "finishMult": 2750,
+  "hpBoost": 15,
+  "saEffects": 150,
+  "crit": true
+}
+
+================================================================================
+5. CRITICAL HITS, TYPE EFFECTIVENESS & HYBRID UNITS (crit & typeEff)
+================================================================================
+
+BOTH ARE FULLY POSTABLE:
+You can pass "crit": true or "typeEff": true in your POST payload:
+- "crit": true    -> Multiplies attack by 1.5x (Critical Hit)
+- "typeEff": true -> Multiplies attack by 1.25x (Attacks Effective Against All Types)
+
+WHY THIS IS CRITICAL FOR UNITS (HUGE DAMAGE DIFFERENCE OVER RAW STATS):
+1. Raw ATK (1.0x): Baseline card stat. Heavily reduced by boss DEF and enemy type resistance.
+2. Type Effective (1.25x): +25% damage boost. Neutralizes type disadvantage and treats the attack as type advantage.
+3. Critical Hit (1.5x): +50% damage boost. Completely BYPASSES boss DEF and ignores type resistance.
+
+AUTOMATIC THREE-WAY BREAKDOWN IN EVERY ATK RESPONSE:
+Regardless of what you post, the API always returns a pre-calculated `breakdown` object:
+{
+  "finalValue": 14276250,
+  "breakdown": {
+    "raw": 9517500,
+    "typeEffective": 11896875,
+    "crit": 14276250
+  }
+}
+
+HOW AGENTS SHOULD CALCULATE HYBRID UNITS (e.g. 50% Crit + Backup Type Effective):
+Many top-tier Dokkan units have kits like:
+"High chance (50%) of performing a critical hit; attacks effective against all types"
+(or 70% crit + backup type effective, or guaranteed type effective + HiPo crit chance).
+
+When a unit has crit chance + backup type effective:
+- When it crits (50% of the time) -> Hits for the 1.5x Crit value.
+- When it fails to crit (50% of the time) -> Falls back to 1.25x Type Effective (NEVER hits for raw 1.0x!).
+
+Weighted Average Expected Damage (APT) Formula for Agents:
+Expected ATK = (Crit Chance x breakdown.crit) + ((1 - Crit Chance) x breakdown.typeEffective)
+
+Concrete Comparison (Raw 10,000,000 unit):
+- Raw Stat: 10,000,000 (1.0x)
+- Type Effective: 12,500,000 (+25%)
+- Critical Hit: 15,000,000 (+50%)
+- 50% Crit + Backup Type Effective Average:
+  (0.50 x 15,000,000) + (0.50 x 12,500,000) = 13,750,000 (+37.5% damage over raw!)
+This is why units with built-in crit and type effective hit substantially harder than their raw number implies.
+
+================================================================================
+6. CALCULATION BRACKET ORDER
+================================================================================
+
+[STANDARD ATTACK]
+Base + Equip
+-> x Leader (e.g. 400% = 5.0x)
+-> x Phase 1 SoT (e.g. 150% = 2.5x)
+-> x Domain
+-> x Items
+-> x Links
+-> x Active Skill
+-> x Ki Multiplier (e.g. 200% = 2.0x)
+-> x Phase 2 Mid-Battle (e.g. 100% = 2.0x)
+-> x SA Multiplier [Base SA + HiPo Boost + SA Effects]
+-> x Crit (1.5x) or Type Effective (1.25x)
+
+[COUNTER ATTACK]
+Base + Equip
+-> x Leader
+-> x Phase 1 SoT
+-> x Domain
+-> x Items
+-> x Links
+-> x Active Skill
+-> x Ki Multiplier
+-> x Phase 2 Mid-Battle
+-> x Counter Multiplier (HiPo Boost IGNORED)
+-> x SA Effect Bracket [1 + (saEffects / 100)] (SEPARATELY MULTIPLICATIVE)
+-> x Crit (1.5x) or Type Effective (1.25x)
+
+[FINISH SKILL]
+Base + Equip
+-> x Leader
+-> x Phase 1 SoT
+-> x Domain
+-> x Items
+-> x Links
+-> x Active Skill
+-> x Ki Multiplier
+-> x Phase 2 Mid-Battle
+-> x Finish Multiplier [Base Finish Mult + HiPo Boost]
+-> x SA Effect Bracket [1 + (saEffects / 100)] (SEPARATELY MULTIPLICATIVE)
+-> x Crit (1.5x) or Type Effective (1.25x)
+
+[DEFENSE]
+Base + Equip
+-> x Leader
+-> x Phase 1 SoT
+-> x Domain
+-> x Items
+-> x Links
+-> x Active Skill
+-> x Phase 2 Mid-Battle / On Hit
+-> x SA Defensive Raise [1 + (sa / 100)]
+
+================================================================================
+7. COMPLETE EXAMPLE PAYLOADS & RESPONSES
+================================================================================
+
+--- STANDARD LR ULTRA SUPER ---
+POST /api/calculate/atk
+{
+  "base": 20000,
+  "lead": 400,
+  "phase1": 150,
+  "links": 35,
+  "ki": 200,
+  "phase2": 100,
+  "saType": "mega-colossal",
+  "saRarity": "lr",
+  "hpBoost": 15,
+  "saEffects": 60,
+  "crit": true
+}
+
+Response:
+{
+  "type": "atk",
+  "finalValue": 15268500,
+  "formattedValue": "15,268,500",
+  "steps": [
+    "Base: 20,000",
+    "Lead (400%): 100,000",
+    "Phase 1 (150%): 250,000",
+    "Links (35%): 337,500",
+    "Ki Mult (200%): 675,000",
+    "Phase 2 (100%): 1,350,000",
+    "SA Mult (705%): 10,179,000",
+    "Critical (1.5x): 15,268,500"
+  ],
+  "breakdown": {
+    "raw": 10179000,
+    "formattedRaw": "10,179,000",
+    "typeEffective": 12723750,
+    "formattedTypeEffective": "12,723,750",
+    "crit": 15268500,
+    "formattedCrit": "15,268,500"
+  }
+}
+
+--- DEFENSE CALCULATION ---
+POST /api/calculate/def
+{
+  "base": 12000,
+  "lead": 400,
+  "phase1": 200,
+  "links": 35,
+  "phase2": 100,
+  "sa": 60
+}
+
+Response:
+{
+  "type": "def",
+  "finalValue": 777600,
+  "formattedValue": "777,600",
+  "steps": [
+    "Base: 12,000",
+    "Lead (400%): 60,000",
+    "Phase 1 (200%): 180,000",
+    "Links (35%): 243,000",
+    "Phase 2 (100%): 486,000",
+    "SA Effect (60%): 777,600"
+  ]
+}
